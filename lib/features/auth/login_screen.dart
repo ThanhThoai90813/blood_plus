@@ -1,4 +1,6 @@
+import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:blood_plus/features/auth/sign_up_screen.dart';
+import 'package:blood_plus/features/onboarding/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import '../../core/widgets/custom_button.dart';
@@ -112,8 +114,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     text: 'Login',
                     color: AppColors.primaryRed,
                     onPressed: () {
-                      print('Login pressed');
-                    },
+                      DialogHelper.showAnimatedSuccessDialog(
+                          context: context,
+                          title: "Login Successful",
+                          message: "Welcome!",
+                          buttonText: 'Go to Home',
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomeScreen(),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     padding: const EdgeInsets.symmetric(vertical: 19),
                   ),
                 ),
