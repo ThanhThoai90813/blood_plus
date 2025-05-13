@@ -20,4 +20,3 @@ class BloodDonationApp extends StatelessWidget {
     );
   }
 }
-//nam mô a di đà phật

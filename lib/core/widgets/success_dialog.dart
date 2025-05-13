@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:blood_plus/core/constants/app_colors.dart';
 
 class SuccessDialog extends StatelessWidget {
   final IconData icon;
@@ -25,7 +26,7 @@ class SuccessDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       insetPadding: const EdgeInsets.symmetric(horizontal: 30, vertical: 24),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -35,14 +36,18 @@ class SuccessDialog extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: iconColor.withOpacity(0.1),
               ),
-              child: Icon(icon, size: 60, color: iconColor),
+              child: Icon(
+                icon,
+                size: 40, // Reduced size to match the image
+                color: iconColor,
+              ),
             ),
             const SizedBox(height: 20),
             Text(
               title,
               style: const TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
@@ -56,25 +61,32 @@ class SuccessDialog extends StatelessWidget {
                 color: Colors.grey,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: onButtonPressed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: iconColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: ElevatedButton(
+                  onPressed: onButtonPressed,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: iconColor,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  buttonText,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Text(
+                    buttonText,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // Changed to white to match the image
+                    ),
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
