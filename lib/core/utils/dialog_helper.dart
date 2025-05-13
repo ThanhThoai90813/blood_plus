@@ -8,23 +8,23 @@ class DialogHelper {
     required String message,
     String buttonText = 'OK',
     VoidCallback? onPressed,
+    Color barrierColor = Colors.black54, // Darker barrier for better contrast
+    Duration transitionDuration = const Duration(milliseconds: 400),
   }) {
+    if (!context.mounted) return; // Prevent errors if context is invalid
     showGeneralDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true, // Allow tap outside to dismiss
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withOpacity(0.3),
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const SizedBox.shrink(); // Không cần gì ở đây, tất cả nằm trong transitionBuilder
-      },
+      barrierColor: barrierColor,
+      transitionDuration: transitionDuration,
+      pageBuilder: (_, __, ___) => const SizedBox.shrink(),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         final curvedAnimation = CurvedAnimation(
           parent: animation,
-          curve: Curves.easeOutBack,
+          curve: Curves.bounceOut, // Bouncy effect for a modern feel
           reverseCurve: Curves.easeInBack,
         );
-
         return ScaleTransition(
           scale: curvedAnimation,
           child: FadeTransition(
