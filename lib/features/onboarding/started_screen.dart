@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:blood_plus/features/auth/login_screen.dart';
 import 'package:blood_plus/features/auth/sign_up_screen.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ class StartedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Center(
@@ -29,32 +31,31 @@ class StartedScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryRed, // Đổi thành màu đỏ
+                color: AppColors.primaryRed,
               ),
             ),
             const SizedBox(height: 40),
-            const Text(
-              "Let's get started!",
-              style: TextStyle(
+            Text(
+              localizations.translate('lets_get_started'),
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: AppColors.black,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
-              'Login to enjoy the features we’ve\nprovided, and stay healthy!',
+            Text(
+              localizations.translate('login_welcome_message'),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
               ),
             ),
             const SizedBox(height: 40),
-            // Nút Login
             CustomButton(
-              text: 'Login',
-              color: AppColors.primaryRed, // Đổi thành màu đỏ
+              text: localizations.translate('login'),
+              color: AppColors.primaryRed,
               textColor: AppColors.white,
               onPressed: () {
                 Navigator.push(
@@ -68,7 +69,6 @@ class StartedScreen extends StatelessWidget {
               borderRadius: 10,
             ),
             const SizedBox(height: 20),
-            // Nút Sign Up
             OutlinedButton(
               onPressed: () {
                 Navigator.push(
@@ -88,11 +88,11 @@ class StartedScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text(
-                'Sign Up',
-                style: TextStyle(
+              child: Text(
+                localizations.translate('sign_up'),
+                style: const TextStyle(
                   fontSize: 16,
-                  color: AppColors.primaryRed, // Đổi thành màu đỏ
+                  color: AppColors.primaryRed,
                 ),
               ),
             ),

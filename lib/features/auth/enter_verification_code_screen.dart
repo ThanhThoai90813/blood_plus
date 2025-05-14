@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/widgets/custom_button.dart';
@@ -16,10 +17,11 @@ class _EnterVerificationCodeScreenState extends State<EnterVerificationCodeScree
   final List<TextEditingController> _otpControllers = List.generate(4, (_) => TextEditingController());
 
   void _handleVerify() {
+    final localizations = AppLocalizations.of(context);
     String otp = _otpControllers.map((controller) => controller.text).join();
     if (otp.length != 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a 4-digit code.')),
+        SnackBar(content: Text(localizations.translate('please_enter_4_digit_code'))),
       );
       return;
     }
@@ -33,13 +35,15 @@ class _EnterVerificationCodeScreenState extends State<EnterVerificationCodeScree
   }
 
   void _handleResend() {
+    final localizations = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('OTP has been resent.')),
+      SnackBar(content: Text(localizations.translate('otp_resent'))),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -55,9 +59,9 @@ class _EnterVerificationCodeScreenState extends State<EnterVerificationCodeScree
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Enter Verification Code',
-              style: TextStyle(
+            Text(
+              localizations.translate('enter_verification_code'),
+              style: const TextStyle(
                 fontSize: 35,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primaryRed,
@@ -65,7 +69,7 @@ class _EnterVerificationCodeScreenState extends State<EnterVerificationCodeScree
             ),
             const SizedBox(height: 10),
             Text(
-              'Enter code that we have sent to your number ${widget.contact}',
+              localizations.translate('enter_code_sent_to').replaceAll('{contact}', widget.contact),
               style: const TextStyle(fontSize: 17, color: Colors.black87),
             ),
             const SizedBox(height: 30),
@@ -102,33 +106,30 @@ class _EnterVerificationCodeScreenState extends State<EnterVerificationCodeScree
               }),
             ),
             const SizedBox(height: 40),
-
-            //Nút verify
             Center(
               child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.7, // 70% chiều rộng màn hình
+                width: MediaQuery.of(context).size.width * 0.7,
                 child: CustomButton(
-                  text: 'Verify',
+                  text: localizations.translate('verify'),
                   color: AppColors.primaryRed,
                   onPressed: _handleVerify,
                   padding: const EdgeInsets.symmetric(vertical: 23),
                 ),
               ),
             ),
-
             const SizedBox(height: 25),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "Didn't receive the code? ",
-                  style: TextStyle(fontSize: 15, color: Colors.black54),
+                Text(
+                  localizations.translate('didnt_receive_code'),
+                  style: const TextStyle(fontSize: 15, color: Colors.black54),
                 ),
                 TextButton(
                   onPressed: _handleResend,
-                  child: const Text(
-                    'Resend',
-                    style: TextStyle(fontSize: 20, color: AppColors.primaryRed),
+                  child: Text(
+                    localizations.translate('resend'),
+                    style: const TextStyle(fontSize: 20, color: AppColors.primaryRed),
                   ),
                 ),
               ],

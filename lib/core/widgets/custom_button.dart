@@ -7,6 +7,8 @@ class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
   final EdgeInsets padding;
   final double borderRadius;
+  final bool isLoading;
+  final bool isDisabled;
 
   const CustomButton({
     Key? key,
@@ -14,27 +16,48 @@ class CustomButton extends StatelessWidget {
     required this.color,
     this.textColor = Colors.white,
     required this.onPressed,
-    this.padding = const EdgeInsets.symmetric(horizontal: 60, vertical: 15),
-    this.borderRadius = 10,
+    this.padding = const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+    this.borderRadius = 12,
+    this.isLoading = false,
+    this.isDisabled = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: isDisabled || isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
+        foregroundColor: textColor, // For ripple effect
         padding: padding,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
+        elevation: 3, // Subtle shadow for depth
+        shadowColor: color.withOpacity(0.3),
+        textStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Roboto', // Modern typography
+        ),
+        surfaceTintColor: Colors.transparent, // Prevent tint overlay
+        minimumSize: const Size(120, 48), // Larger tap target for accessibility
       ),
-      child: Text(
+      child: isLoading
+          ? const SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          color: Colors.white,
+          strokeWidth: 2,
+        ),
+      )
+          : Text(
         text,
         style: TextStyle(
+          color: isDisabled ? Colors.grey : textColor,
           fontSize: 16,
-          color: textColor,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

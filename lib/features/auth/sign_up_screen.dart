@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
@@ -13,51 +14,36 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscureText = true;
-  bool _agreeToTerms = false;
-
+  bool _obscureConfirmText = true;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   void _handleSignUp() {
-    // Basic validation
-    if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must agree to the terms.')),
-      );
-      return;
-    }
-
+    final localizations = AppLocalizations.of(context);
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields.')),
+        SnackBar(content: Text(localizations.translate('please_fill_all_fields'))),
       );
       return;
     }
 
-    // Simple email format validation
-    if (!_emailController.text.contains('@') ||
-        !_emailController.text.contains('.')) {
+    if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid email.')),
+        SnackBar(content: Text(localizations.translate('passwords_do_not_match'))),
       );
       return;
     }
 
-    // Simulate a successful sign-up (since there's no backend)
-    print('Sign Up with:');
-    print('Name: ${_nameController.text}');
-    print('Email: ${_emailController.text}');
-    print('Password: ${_passwordController.text}');
-
-    // Show success dialog
     DialogHelper.showAnimatedSuccessDialog(
       context: context,
-      title: 'Sign Up Successful',
-      message: 'Your account has been created successfully!',
-      buttonText: 'Go to Login',
+      title: localizations.translate('sign_up_successful'),
+      message: localizations.translate('account_created_successfully'),
+      buttonText: localizations.translate('go_to_login'),
       onPressed: () {
         Navigator.pushReplacement(
           context,
@@ -71,157 +57,178 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Tiêu đề
-              const Text(
-                'Sign Up',
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black,
-                ),
-              ),
-              const SizedBox(height: 60),
-
-              // Tên
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  hintText: 'Enter your name',
-                  prefixIcon: const Icon(Icons.person_outline),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.primaryRed),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  localizations.translate('create_account'),
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.black,
                   ),
                 ),
-              ),
-              const SizedBox(height: 25),
-
-              // Email
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  hintText: 'Enter your email',
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.primaryRed),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 25),
-
-              // Mật khẩu
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscureText,
-                decoration: InputDecoration(
-                  hintText: 'Enter your password',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                const SizedBox(height: 40),
+                TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    hintText: localizations.translate('enter_your_name'),
+                    prefixIcon: const Icon(Icons.person_outline),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.primaryRed),
+                    filled: true,
+                    fillColor: Colors.grey[200],
                   ),
                 ),
-              ),
-              const SizedBox(height: 25),
-
-              // Checkbox điều khoản
-              Row(
-                children: [
-                  Checkbox(
-                    value: _agreeToTerms,
-                    onChanged: (value) {
-                      setState(() {
-                        _agreeToTerms = value ?? false;
-                      });
-                    },
-                    activeColor: AppColors.primaryRed,
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    hintText: localizations.translate('enter_your_email'),
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
                   ),
-                  const Expanded(
-                    child: Text(
-                      'I agree to the medidoc Terms of Service \nand Privacy Policy',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.black,
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscureText,
+                  decoration: InputDecoration(
+                    hintText: localizations.translate('enter_your_password'),
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
                       ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
                     ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
                   ),
-                ],
-              ),
-              const SizedBox(height: 30),
-
-              // Nút Sign Up
-              Center(
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.7, // 70% chiều rộng màn hình
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmText,
+                  decoration: InputDecoration(
+                    hintText: localizations.translate('confirm_your_password'),
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmText ? Icons.visibility_off : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureConfirmText = !_obscureConfirmText;
+                        });
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
                   child: CustomButton(
-                    text: 'Sign Up',
+                    text: localizations.translate('sign_up'),
                     color: AppColors.primaryRed,
                     onPressed: _handleSignUp,
                     padding: const EdgeInsets.symmetric(vertical: 15),
+                    borderRadius: 10,
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Chuyển sang đăng nhập
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Already have an account? ",
-                    style: TextStyle(fontSize: 15, color: Colors.grey),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      localizations.translate('already_have_account'),
+                      style: const TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        localizations.translate('login'),
+                        style: const TextStyle(
+                          fontSize: 19,
+                          color: AppColors.primaryRed,
+                          fontWeight: FontWeight.bold,
                         ),
-                      );
-                    },
-                    child: const Text(
-                      'Log In',
-                      style: TextStyle(
-                        fontSize: 19,
-                        color: AppColors.primaryRed,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  localizations.translate('or_login_with'),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 20),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    print('Sign in with Google pressed');
+                  },
+                  icon: Image.asset(
+                    'assets/icons/google_logo.png',
+                    width: 24,
+                    height: 24,
+                  ),
+                  label: Text(
+                    localizations.translate('sign_in_with_google'),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.black,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    minimumSize: const Size(double.infinity, 50),
+                    side: const BorderSide(color: Colors.grey),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
