@@ -1,8 +1,10 @@
 import 'package:blood_plus/core/utils/dialog_helper.dart';
+import 'package:blood_plus/features/onboarding/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/custom_button_navBar.dart';
 
@@ -45,28 +47,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
-    // TODO: Navigate to other screens
+    if (index == 4) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfileScreen()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: AppColors.primaryRed, // Khớp với màu của header
-        statusBarIconBrightness: Brightness.light, // Biểu tượng sáng để tương phản
-        statusBarBrightness: Brightness.dark, // Dành cho iOS
+        statusBarColor: AppColors.primaryRed,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          top: false, // Tắt SafeArea cho phần trên để header mở rộng
+          top: false,
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
               _HeaderSection(),
               const SizedBox(height: 15),
               _NewsCarousel(newsItems: newsItems),
-              const SizedBox(height: 15),
               _FeatureGrid(features: features),
             ],
           ),
@@ -80,7 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ======================= HEADER SECTION ========================
 class _HeaderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -104,10 +109,10 @@ class _HeaderSection extends StatelessWidget {
               const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     'Duong Thanh Thoai',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: AppColors.white,
@@ -115,7 +120,7 @@ class _HeaderSection extends StatelessWidget {
                   ),
                   Text(
                     'P13, Binh Thanh, HCM',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       color: AppColors.white,
                       fontSize: 14,
                     ),
@@ -150,8 +155,8 @@ class _HeaderSection extends StatelessWidget {
                     );
                   },
                   child: const _CampaignCard(
-                    title: '', // Hide title
-                    subtitle: 'Còn: 54 ngày', // Add context to subtitle
+                    title: '',
+                    subtitle: 'Còn: 54 ngày',
                     image: 'assets/images/blood.png',
                     color: Colors.red,
                   ),
@@ -165,7 +170,6 @@ class _HeaderSection extends StatelessWidget {
   }
 }
 
-// ======================= CAMPAIGN CARD ========================
 class _CampaignCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -212,12 +216,12 @@ class _CampaignCard extends StatelessWidget {
             width: 100,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (title.isNotEmpty) // Only show title if not empty
+                if (title.isNotEmpty)
                   AutoSizeText(
                     title,
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -228,7 +232,7 @@ class _CampaignCard extends StatelessWidget {
                   ),
                 AutoSizeText(
                   subtitle,
-                  style: const TextStyle(
+                  style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
@@ -245,7 +249,6 @@ class _CampaignCard extends StatelessWidget {
   }
 }
 
-// ======================= NEWS CAROUSEL ========================
 class _NewsCarousel extends StatefulWidget {
   final List<Map<String, String>> newsItems;
 
@@ -264,17 +267,20 @@ class _NewsCarouselState extends State<_NewsCarousel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 27),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 27),
           child: Text(
             'Tin Tức',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         const SizedBox(height: 16),
         CarouselSlider(
           options: CarouselOptions(
-            height: 240,
+            height: 220,
             autoPlay: true,
             enlargeCenterPage: true,
             viewportFraction: 0.8,
@@ -299,20 +305,25 @@ class _NewsCarouselState extends State<_NewsCarousel> {
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
                       child: Image.asset(
                         item['image']!,
-                        height: 140,
+                        height: 120,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: AutoSizeText(
-                        item['title']!,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: AutoSizeText(
+                          item['title']!,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -343,7 +354,6 @@ class _NewsCarouselState extends State<_NewsCarousel> {
   }
 }
 
-// ======================= FEATURE GRID ========================
 class _FeatureGrid extends StatelessWidget {
   final List<Map<String, dynamic>> features;
 
@@ -359,7 +369,7 @@ class _FeatureGrid extends StatelessWidget {
         itemCount: features.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 16,
+          mainAxisSpacing: 10,
           crossAxisSpacing: 16,
           childAspectRatio: 0.9,
         ),
@@ -379,11 +389,14 @@ class _FeatureGrid extends StatelessWidget {
               Text(
                 feature['title'],
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                  color: Colors.black87,
                 ),
               ),
+
             ],
           );
         },
