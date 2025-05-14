@@ -1,4 +1,4 @@
-
+import 'package:blood_plus/core/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
@@ -19,38 +19,37 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   void _handleCreatePassword() {
+    final localizations = AppLocalizations.of(context);
     String newPassword = _newPasswordController.text.trim();
     String confirmPassword = _confirmPasswordController.text.trim();
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields.')),
+        SnackBar(content: Text(localizations.translate('please_fill_all_fields'))),
       );
       return;
     }
 
     if (newPassword != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match.')),
+        SnackBar(content: Text(localizations.translate('passwords_do_not_match'))),
       );
       return;
     }
 
     if (newPassword.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password must be at least 6 characters.')),
+        SnackBar(content: Text(localizations.translate('password_min_length'))),
       );
       return;
     }
 
-    // Hiển thị SuccessDialog khi tạo mật khẩu thành công
     DialogHelper.showAnimatedSuccessDialog(
       context: context,
-      title: 'Password Reset Successful',
-      message: 'Your password has been reset successfully!',
-      buttonText: 'Go to Login',
+      title: localizations.translate('password_reset_successful'),
+      message: localizations.translate('password_reset_success_message'),
+      buttonText: localizations.translate('go_to_login'),
       onPressed: () {
-        // Điều hướng về màn hình Login sau khi nhấn nút trên dialog
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -61,6 +60,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -76,25 +76,25 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Create New Password',
-              style: TextStyle(
+            Text(
+              localizations.translate('create_new_password'),
+              style: const TextStyle(
                 fontSize: 35,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primaryRed,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
-              'Create your new password to login',
-              style: TextStyle(fontSize: 17, color: Colors.black87),
+            Text(
+              localizations.translate('create_password_to_login'),
+              style: const TextStyle(fontSize: 17, color: Colors.black87),
             ),
             const SizedBox(height: 30),
             TextField(
               controller: _newPasswordController,
               obscureText: _obscureNewPassword,
               decoration: InputDecoration(
-                hintText: 'Enter new password',
+                hintText: localizations.translate('enter_new_password'),
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -122,7 +122,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
               controller: _confirmPasswordController,
               obscureText: _obscureConfirmPassword,
               decoration: InputDecoration(
-                hintText: 'Confirm password',
+                hintText: localizations.translate('confirm_password'),
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -146,19 +146,17 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
               ),
             ),
             const SizedBox(height: 30),
-
-            //Nút "Create Password"
             Center(
               child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.7, // 70% chiều rộng màn hình
+                width: MediaQuery.of(context).size.width * 0.7,
                 child: CustomButton(
-                  text: 'Create Password',
+                  text: localizations.translate('create_new_password'),
                   color: AppColors.primaryRed,
                   onPressed: _handleCreatePassword,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

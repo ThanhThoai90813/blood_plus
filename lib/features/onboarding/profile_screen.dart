@@ -1,9 +1,14 @@
-import 'package:blood_plus/core/widgets/custom_button_navBar.dart';
-import 'package:blood_plus/features/onboarding/account_infor_screen.dart';
-import 'package:blood_plus/features/onboarding/home_screen.dart';
+import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import '../../core/constants/app_colors.dart';
+import '../../core/widgets/custom_button_navBar.dart';
+import '../auth/login_screen.dart';
+import '../onboarding/account_infor_screen.dart';
+import '../onboarding/home_screen.dart';
+import '../onboarding/settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -22,7 +27,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _storeCurrentBrightness();
   }
 
-  // Store the current brightness level
   Future<void> _storeCurrentBrightness() async {
     try {
       final currentBrightness = await ScreenBrightness().current;
@@ -34,7 +38,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Set maximum brightness
   Future<void> _setMaxBrightness() async {
     try {
       await ScreenBrightness().setScreenBrightness(1.0);
@@ -43,7 +46,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Restore original brightness
   Future<void> _restoreBrightness() async {
     try {
       await ScreenBrightness().setScreenBrightness(_originalBrightness);
@@ -54,14 +56,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFD12727),
+        backgroundColor: AppColors.primaryRed,
         elevation: 0,
-        title: const Text(
-          'Profile',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          localizations.translate('profile'),
+          style: const TextStyle(color: Colors.white),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -80,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _setMaxBrightness();
                 },
                 child: Container(
-                  width: 40, // Square dimensions
+                  width: 40,
                   height: 40,
                   child: const Icon(
                     Icons.qr_code,
@@ -99,11 +103,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                // Profile header
                 Container(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFD12727),
+                    color: AppColors.primaryRed,
                     borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
                   ),
                   child: Column(
@@ -133,21 +136,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 15),
-                // Other ListTiles
-                buildListTile(context, Icons.person_outline, 'Thông tin người dùng', const AccountInfoScreen()),
-                buildListTile(context, Icons.settings, 'Cài Đặt', null),
-                buildListTile(context, Icons.bookmark_border, 'Chính sách ứng dụng', null),
-                buildListTile(context, Icons.history, 'Lịch sử hiến máu', null),
-                buildListTile(context, Icons.logout, 'Đăng xuất', null),
-                // "Hỗ trợ" button
+                buildListTile(context, Icons.person_outline, localizations.translate('user_info'), const AccountInfoScreen()),
+                buildListTile(context, Icons.settings, localizations.translate('settings'), const SettingsScreen()),
+                buildListTile(context, Icons.bookmark_border, localizations.translate('app_info'), null, onTap: () {
+                  DialogHelper.showAnimatedSuccessDialog(
+                    context: context,
+                    title: localizations.translate('app_info_title'),
+                    message: localizations.translate('app_info_message'),
+                    buttonText: localizations.translate('close'),
+                    icon: Icons.info_outline,
+                    iconColor: AppColors.primaryRed,
+                  );
+                }),
+                buildListTile(context, Icons.history, localizations.translate('donation_history'), null),
                 ListTile(
                   leading: const Icon(
-                    Icons.help_outline,
+                    Icons.logout,
                     size: 30,
                   ),
-                  title: const Text(
-                    'Hỗ trợ',
-                    style: TextStyle(
+                  title: Text(
+                    localizations.translate('logout'),
+                    style: const TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w400,
                     ),
@@ -157,13 +166,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     size: 30,
                   ),
                   onTap: () {
-                    _showSupportDialog(context);
+                    _showLogoutConfirmationDialog(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.help_outline,
+                    size: 30,
+                  ),
+                  title: Text(
+                    localizations.translate('support'),
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    size: 30,
+                  ),
+                  onTap: () {
+                    DialogHelper.showAnimatedSuccessDialog(
+                      context: context,
+                      title: localizations.translate('support_title'),
+                      message: localizations.translate('support_message'),
+                      buttonText: localizations.translate('close'),
+                      icon: Icons.help_outline,
+                      iconColor: AppColors.primaryRed,
+                    );
                   },
                 ),
               ],
             ),
           ),
-          // Enlarged QR Code overlay with white background
           if (_isQrEnlarged)
             GestureDetector(
               onTap: () {
@@ -178,7 +213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white, // White background for enlarged QR
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -190,8 +225,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: QrImageView(
                       data: 'Duong Thanh Thoai\n05/02/2003\n083203007395',
-                      size: 300, // Enlarged size, square
-                      backgroundColor: Colors.white, // Ensure white background
+                      size: 300,
+                      backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
                     ),
                   ),
@@ -209,16 +244,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (context) => const HomeScreen()),
                   (route) => false,
             );
-          } else if (index != 4) {
-            // Handle other navigation if needed
           }
         },
       ),
     );
   }
 
-  // Helper method to build the list tiles
-  ListTile buildListTile(BuildContext context, IconData icon, String title, Widget? screen) {
+  ListTile buildListTile(
+      BuildContext context,
+      IconData icon,
+      String title,
+      Widget? screen, {
+        VoidCallback? onTap,
+      }) {
     return ListTile(
       leading: Icon(
         icon,
@@ -235,39 +273,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Icons.chevron_right,
         size: 30,
       ),
-      onTap: () {
-        if (screen != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => screen),
-          );
-        }
-      },
+      onTap: onTap ??
+              () {
+            if (screen != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => screen),
+              );
+            }
+          },
     );
   }
 
-  // Function to show the support dialog
-  void _showSupportDialog(BuildContext context) {
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Hỗ trợ từ nhà phát triển'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Text('Số điện thoại: 0123456789'),
-              Text('Email: support@bloodplus.com'),
-              SizedBox(height: 10),
-              Text('Phản hồi hoặc báo cáo ứng dụng, vui lòng gửi email hoặc gọi cho chúng tôi.')
-            ],
-          ),
+          title: Text(localizations.translate('logout_confirm_title')),
+          content: Text(localizations.translate('logout_confirm_message')),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Đóng'),
+              child: Text(localizations.translate('cancel')),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      (route) => false,
+                );
+                DialogHelper.showAnimatedSuccessDialog(
+                  context: context,
+                  title: localizations.translate('logout_success_title'),
+                  message: localizations.translate('logout_success_message'),
+                  buttonText: localizations.translate('ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                );
+              },
+              child: Text(
+                localizations.translate('confirm'),
+                style: const TextStyle(color: AppColors.primaryRed),
+              ),
             ),
           ],
         );

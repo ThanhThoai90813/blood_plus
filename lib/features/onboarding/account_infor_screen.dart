@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,13 +28,14 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.primaryRed,
         elevation: 0,
         title: Text(
-          'Cập nhật thông tin',
+          localizations.translate('update_info'),
           style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600),
         ),
         leading: IconButton(
@@ -52,27 +54,27 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionTitle("Thông tin cá nhân"),
-                  _buildInputField("Số điện thoại", phoneController, Icons.phone),
-                  _buildInputField("Email", emailController, Icons.email),
-                  _buildInputField("Ngày sinh", dobController, Icons.cake),
-                  _buildInputField("Vai trò", roleController, Icons.verified_user),
+                  _sectionTitle(localizations.translate('personal_info')),
+                  _buildInputField(localizations.translate('phone_number'), phoneController, Icons.phone, 'phone_number'),
+                  _buildInputField(localizations.translate('email'), emailController, Icons.email, 'email'),
+                  _buildInputField(localizations.translate('date_of_birth'), dobController, Icons.cake, 'date_of_birth'),
+                  _buildInputField(localizations.translate('role'), roleController, Icons.verified_user, 'role'),
                   const SizedBox(height: 20),
-                  _sectionTitle("Thông tin cơ quan"),
-                  _buildInputField("Cơ quan", organizationController, Icons.business),
+                  _sectionTitle(localizations.translate('organization_info')),
+                  _buildInputField(localizations.translate('organization'), organizationController, Icons.business, 'organization'),
                 ],
               ),
             ),
             const SizedBox(height: 32),
             CustomButton(
-              text: 'LƯU THÔNG TIN',
+              text: localizations.translate('save_info'),
               color: AppColors.primaryRed,
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   DialogHelper.showAnimatedSuccessDialog(
                     context: context,
-                    title: 'Thành công',
-                    message: 'Thông tin đã được lưu thành công!',
+                    title: localizations.translate('sign_up_successful'),
+                    message: localizations.translate('info_saved_successfully'), buttonText: '',
                   );
                 }
               },
@@ -147,7 +149,8 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
     );
   }
 
-  Widget _buildInputField(String label, TextEditingController controller, IconData icon) {
+  Widget _buildInputField(String label, TextEditingController controller, IconData icon, String fieldKey) {
+    final localizations = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextFormField(
@@ -171,7 +174,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Vui lòng nhập $label';
+            return localizations.translate('please_enter').replaceAll('{field}', label.toLowerCase());
           }
           return null;
         },

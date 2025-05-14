@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:blood_plus/features/auth/sign_up_screen.dart';
 import 'package:blood_plus/features/onboarding/home_screen.dart';
@@ -19,18 +20,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   void _handleLogin() {
+    final localizations = AppLocalizations.of(context);
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields.')),
+        SnackBar(content: Text(localizations.translate('please_fill_all_fields'))),
       );
       return;
     }
 
     DialogHelper.showAnimatedSuccessDialog(
       context: context,
-      title: "Login Successful",
-      message: "Welcome!",
-      buttonText: 'Go to Home',
+      title: localizations.translate('login_successful'),
+      message: localizations.translate('welcome'),
+      buttonText: localizations.translate('go_to_home'),
       onPressed: () {
         Navigator.pushReplacement(
           context,
@@ -44,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -53,9 +56,9 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Login',
-                  style: TextStyle(
+                Text(
+                  localizations.translate('login'),
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: AppColors.black,
@@ -66,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    hintText: 'Enter your email',
+                    hintText: localizations.translate('enter_your_email'),
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -81,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   obscureText: _obscureText,
                   decoration: InputDecoration(
-                    hintText: 'Enter your password',
+                    hintText: localizations.translate('enter_your_password'),
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -113,9 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       );
                     },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
+                    child: Text(
+                      localizations.translate('forgot_password'),
+                      style: const TextStyle(
                         color: Colors.blue,
                         fontSize: 14,
                       ),
@@ -126,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    text: 'Log In',
+                    text: localizations.translate('login'),
                     color: AppColors.primaryRed,
                     onPressed: _handleLogin,
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -137,9 +140,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Don't have an account? ",
-                      style: TextStyle(fontSize: 15, color: AppColors.black),
+                    Text(
+                      localizations.translate('dont_have_account'),
+                      style: const TextStyle(fontSize: 15, color: AppColors.black),
                     ),
                     TextButton(
                       onPressed: () {
@@ -150,9 +153,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       },
-                      child: const Text(
-                        'SIGN UP',
-                        style: TextStyle(
+                      child: Text(
+                        localizations.translate('sign_up'),
+                        style: const TextStyle(
                           fontSize: 17,
                           color: AppColors.primaryRed,
                           fontWeight: FontWeight.bold,
@@ -162,9 +165,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'or login with',
-                  style: TextStyle(
+                Text(
+                  localizations.translate('or_login_with'),
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
@@ -179,9 +182,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 24,
                     height: 24,
                   ),
-                  label: const Text(
-                    'Sign in with Google',
-                    style: TextStyle(
+                  label: Text(
+                    localizations.translate('sign_in_with_google'),
+                    style: const TextStyle(
                       fontSize: 16,
                       color: AppColors.black,
                     ),

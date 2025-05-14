@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:blood_plus/features/onboarding/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +20,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Map<String, dynamic>> features = [
-    {'icon': Icons.favorite, 'title': 'Đặt Lịch\nHiến Máu', 'color': Colors.red},
-    {'icon': Icons.emergency, 'title': 'Hiến Máu\nKhẩn Cấp!', 'color': Colors.red},
-    {'icon': Icons.local_hospital, 'title': 'Bệnh viện\nGần Đây', 'color': Colors.green},
-    {'icon': Icons.request_page, 'title': 'Sự Kiện\nNổi Bật', 'color': Colors.blue},
-    {'icon': Icons.local_hospital, 'title': 'Lời khuyên\nChuyên Gia', 'color': Colors.orange},
-    {'icon': Icons.inbox, 'title': 'Các thông\ntin', 'color': Colors.purple},
+    {'icon': Icons.favorite, 'title': 'schedule_donation', 'color': Colors.red},
+    {'icon': Icons.emergency, 'title': 'emergency_donation', 'color': Colors.red},
+    {'icon': Icons.local_hospital, 'title': 'nearby_hospitals', 'color': Colors.green},
+    {'icon': Icons.request_page, 'title': 'highlighted_events', 'color': Colors.blue},
+    {'icon': Icons.local_hospital, 'title': 'expert_advice', 'color': Colors.orange},
+    {'icon': Icons.inbox, 'title': 'information', 'color': Colors.purple},
   ];
 
   final List<Map<String, String>> newsItems = [
@@ -90,6 +91,7 @@ class _HeaderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final AppLocalizations localizations = AppLocalizations.of(context);
 
     return Container(
       padding: EdgeInsets.fromLTRB(24, statusBarHeight + 24, 24, 24),
@@ -135,9 +137,9 @@ class _HeaderSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              const Expanded(
+              Expanded(
                 child: _CampaignCard(
-                  title: 'Lần hiến máu',
+                  title: localizations.translate('donation_times'),
                   subtitle: '15',
                   image: 'assets/images/blood.png',
                   color: Colors.orange,
@@ -149,14 +151,14 @@ class _HeaderSection extends StatelessWidget {
                   onTap: () {
                     DialogHelper.showAnimatedSuccessDialog(
                       context: context,
-                      title: 'Thông Báo',
-                      message: 'Thời gian có thể tiếp tục hiến máu là 54 ngày nữa',
-                      buttonText: 'OK',
+                      title: localizations.translate('notification_message'),
+                      message: localizations.translate('notification_message'),
+                      buttonText: localizations.translate('ok'),
                     );
                   },
-                  child: const _CampaignCard(
+                  child: _CampaignCard(
                     title: '',
-                    subtitle: 'Còn: 54 ngày',
+                    subtitle: localizations.translate('days_left'),
                     image: 'assets/images/blood.png',
                     color: Colors.red,
                   ),
@@ -264,13 +266,15 @@ class _NewsCarouselState extends State<_NewsCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 27),
           child: Text(
-            'Tin Tức',
+            localizations.translate('news'),
             style: GoogleFonts.poppins(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -323,7 +327,7 @@ class _NewsCarouselState extends State<_NewsCarousel> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -361,6 +365,8 @@ class _FeatureGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
@@ -387,7 +393,7 @@ class _FeatureGrid extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                feature['title'],
+                localizations.translate(feature['title']),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 13,
@@ -396,7 +402,6 @@ class _FeatureGrid extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-
             ],
           );
         },

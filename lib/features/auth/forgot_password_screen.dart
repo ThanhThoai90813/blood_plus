@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/widgets/custom_button.dart';
@@ -15,22 +16,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _inputController = TextEditingController();
 
   void _handleSendOTP() {
+    final localizations = AppLocalizations.of(context);
     String input = _inputController.text.trim();
     if (input.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email or phone number.')),
+        SnackBar(content: Text(localizations.translate('please_enter_email_or_phone'))),
       );
       return;
     }
     if (_isEmailSelected && (!input.contains('@') || !input.contains('.'))) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid email.')),
+        SnackBar(content: Text(localizations.translate('please_enter_valid_email'))),
       );
       return;
     }
     if (!_isEmailSelected && input.length < 10) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid phone number.')),
+        SnackBar(content: Text(localizations.translate('please_enter_valid_phone'))),
       );
       return;
     }
@@ -47,6 +49,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -65,18 +68,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
-                  'Forgot Password?',
-                  style: TextStyle(
+                Text(
+                  localizations.translate('forgot_password'),
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: AppColors.black,
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Select a method to reset your password.',
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                Text(
+                  localizations.translate('select_reset_method'),
+                  style: const TextStyle(fontSize: 16, color: Colors.black87),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
@@ -101,9 +104,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             _inputController.clear();
                           });
                         },
-                        child: const Text(
-                          'Email',
-                          style: TextStyle(fontSize: 16),
+                        child: Text(
+                          localizations.translate('email'),
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
@@ -127,9 +130,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             _inputController.clear();
                           });
                         },
-                        child: const Text(
-                          'Phone',
-                          style: TextStyle(fontSize: 16),
+                        child: Text(
+                          localizations.translate('phone'),
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
@@ -143,8 +146,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       : TextInputType.phone,
                   decoration: InputDecoration(
                     hintText: _isEmailSelected
-                        ? 'Enter your email'
-                        : 'Enter your phone number',
+                        ? localizations.translate('enter_your_email')
+                        : localizations.translate('phone_number'),
                     prefixIcon: Icon(
                       _isEmailSelected ? Icons.email_outlined : Icons.phone,
                     ),
@@ -160,7 +163,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    text: 'Send OTP',
+                    text: localizations.translate('send_otp'),
                     color: AppColors.primaryRed,
                     onPressed: _handleSendOTP,
                     padding: const EdgeInsets.symmetric(vertical: 15),

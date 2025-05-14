@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 
@@ -8,10 +9,12 @@ class CustomBottomNavBar extends StatelessWidget {
   const CustomBottomNavBar({
     required this.selectedIndex,
     required this.onItemTapped,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return SafeArea( // Sử dụng SafeArea để tránh bị che
       child: Container(
         height:61,
@@ -35,14 +38,14 @@ class CustomBottomNavBar extends StatelessWidget {
               children: [
                 _buildNavItem(
                   icon: Icons.home,
-                  label: 'Trang chủ',
+                  label: localizations.translate('home'),
                   index: 0,
                   isSelected: selectedIndex == 0,
                   onTap: onItemTapped,
                 ),
                 _buildNavItem(
                   icon: Icons.calendar_today,
-                  label: 'Sự kiện',
+                  label: localizations.translate('events'),
                   index: 1,
                   isSelected: selectedIndex == 1,
                   onTap: onItemTapped,
@@ -50,14 +53,14 @@ class CustomBottomNavBar extends StatelessWidget {
                 const SizedBox(width: 60), // Space for the center button
                 _buildNavItem(
                   icon: Icons.handshake,
-                  label: 'Lịch sử',
+                  label: localizations.translate('history'),
                   index: 3,
                   isSelected: selectedIndex == 3,
                   onTap: onItemTapped,
                 ),
                 _buildNavItem(
                   icon: Icons.person,
-                  label: 'Thông tin',
+                  label: localizations.translate('profile'),
                   index: 4,
                   isSelected: selectedIndex == 4,
                   onTap: onItemTapped,

@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
@@ -20,28 +21,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   void _handleSignUp() {
+    final localizations = AppLocalizations.of(context);
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields.')),
+        SnackBar(content: Text(localizations.translate('please_fill_all_fields'))),
       );
       return;
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match.')),
+        SnackBar(content: Text(localizations.translate('passwords_do_not_match'))),
       );
       return;
     }
 
     DialogHelper.showAnimatedSuccessDialog(
       context: context,
-      title: 'Sign Up Successful',
-      message: 'Your account has been created successfully!',
-      buttonText: 'Go to Login',
+      title: localizations.translate('sign_up_successful'),
+      message: localizations.translate('account_created_successfully'),
+      buttonText: localizations.translate('go_to_login'),
       onPressed: () {
         Navigator.pushReplacement(
           context,
@@ -55,6 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -64,9 +67,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Create Account',
-                  style: TextStyle(
+                Text(
+                  localizations.translate('create_account'),
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: AppColors.black,
@@ -76,7 +79,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    hintText: 'Enter your name',
+                    hintText: localizations.translate('enter_your_name'),
                     prefixIcon: const Icon(Icons.person_outline),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -91,7 +94,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    hintText: 'Enter your email',
+                    hintText: localizations.translate('enter_your_email'),
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -106,7 +109,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _passwordController,
                   obscureText: _obscureText,
                   decoration: InputDecoration(
-                    hintText: 'Enter your password',
+                    hintText: localizations.translate('enter_your_password'),
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -131,7 +134,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmText,
                   decoration: InputDecoration(
-                    hintText: 'Confirm your password',
+                    hintText: localizations.translate('confirm_your_password'),
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -155,7 +158,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    text: 'Log In',
+                    text: localizations.translate('sign_up'),
                     color: AppColors.primaryRed,
                     onPressed: _handleSignUp,
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -166,9 +169,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Already have an account? ",
-                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    Text(
+                      localizations.translate('already_have_account'),
+                      style: const TextStyle(fontSize: 15, color: Colors.grey),
                     ),
                     TextButton(
                       onPressed: () {
@@ -179,9 +182,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         );
                       },
-                      child: const Text(
-                        'Log In',
-                        style: TextStyle(
+                      child: Text(
+                        localizations.translate('login'),
+                        style: const TextStyle(
                           fontSize: 19,
                           color: AppColors.primaryRed,
                           fontWeight: FontWeight.bold,
@@ -191,9 +194,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'or login with',
-                  style: TextStyle(
+                Text(
+                  localizations.translate('or_login_with'),
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
@@ -208,9 +211,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     width: 24,
                     height: 24,
                   ),
-                  label: const Text(
-                    'Sign in with Google',
-                    style: TextStyle(
+                  label: Text(
+                    localizations.translate('sign_in_with_google'),
+                    style: const TextStyle(
                       fontSize: 16,
                       color: AppColors.black,
                     ),

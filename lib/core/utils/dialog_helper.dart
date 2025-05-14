@@ -1,3 +1,4 @@
+import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/widgets/success_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -8,13 +9,15 @@ class DialogHelper {
     required String message,
     String buttonText = 'OK',
     VoidCallback? onPressed,
-    Color barrierColor = Colors.black54, // Darker barrier for better contrast
+    Color barrierColor = Colors.black54,
     Duration transitionDuration = const Duration(milliseconds: 400),
+    IconData icon = Icons.check_circle_outline, // Default icon
+    Color iconColor = AppColors.primaryRed, // Default icon color
   }) {
-    if (!context.mounted) return; // Prevent errors if context is invalid
+    if (!context.mounted) return;
     showGeneralDialog(
       context: context,
-      barrierDismissible: true, // Allow tap outside to dismiss
+      barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: barrierColor,
       transitionDuration: transitionDuration,
@@ -22,7 +25,7 @@ class DialogHelper {
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         final curvedAnimation = CurvedAnimation(
           parent: animation,
-          curve: Curves.bounceOut, // Bouncy effect for a modern feel
+          curve: Curves.bounceOut,
           reverseCurve: Curves.easeInBack,
         );
         return ScaleTransition(
@@ -34,6 +37,8 @@ class DialogHelper {
               message: message,
               buttonText: buttonText,
               onButtonPressed: onPressed ?? () => Navigator.of(context).pop(),
+              icon: icon,
+              iconColor: iconColor,
             ),
           ),
         );
