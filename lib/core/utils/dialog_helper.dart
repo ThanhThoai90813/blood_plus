@@ -36,7 +36,12 @@ class DialogHelper {
               title: title,
               message: message,
               buttonText: buttonText,
-              onButtonPressed: onPressed ?? () => Navigator.of(context).pop(),
+              onButtonPressed: () {
+                Navigator.of(context).pop(); // Đóng dialog đúng context
+                if (onPressed != null) {
+                  onPressed(); // Gọi thêm logic nếu có (ví dụ như chuyển màn hình)
+                }
+              },
               icon: icon,
               iconColor: iconColor,
             ),

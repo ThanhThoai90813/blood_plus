@@ -1,11 +1,10 @@
 import 'package:blood_plus/core/localization.dart';
-import 'package:blood_plus/core/utils/dialog_helper.dart';
-import 'package:blood_plus/features/auth/sign_up_screen.dart';
-import 'package:blood_plus/features/onboarding/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import '../../core/widgets/custom_button.dart';
 import 'forgot_password_screen.dart';
+import 'sign_up_screen.dart';
+import '../onboarding/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -23,25 +22,44 @@ class _LoginScreenState extends State<LoginScreen> {
     final localizations = AppLocalizations.of(context);
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.translate('please_fill_all_fields'))),
+        SnackBar(
+          content: Text(localizations.translate('please_fill_all_fields')),
+          backgroundColor: AppColors.darkRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
       );
       return;
     }
 
-    DialogHelper.showAnimatedSuccessDialog(
-      context: context,
-      title: localizations.translate('login_successful'),
-      message: localizations.translate('welcome'),
-      buttonText: localizations.translate('go_to_home'),
-      onPressed: () {
+    // Show success SnackBar at the top
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(localizations.translate('login_successful')),
+        backgroundColor: AppColors.lowerRed,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    // Navigate to HomeScreen after a short delay to allow SnackBar to be visible
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => const HomeScreen(),
           ),
         );
-      },
-    );
+      }
+    });
   }
 
   @override

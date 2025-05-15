@@ -1,5 +1,4 @@
 import 'package:blood_plus/core/localization.dart';
-import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screen_brightness/screen_brightness.dart';
@@ -9,6 +8,7 @@ import '../auth/login_screen.dart';
 import '../onboarding/account_infor_screen.dart';
 import '../onboarding/home_screen.dart';
 import '../onboarding/settings_screen.dart';
+import '../../core/utils/dialog_helper.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -303,19 +303,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                // Navigate to LoginScreen
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
                       (route) => false,
                 );
-                DialogHelper.showAnimatedSuccessDialog(
-                  context: context,
-                  title: localizations.translate('logout_success_title'),
-                  message: localizations.translate('logout_success_message'),
-                  buttonText: localizations.translate('ok'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+                // Show success SnackBar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(localizations.translate('logout_success_message')),
+                    backgroundColor: AppColors.lowerRed,
+                    behavior: SnackBarBehavior.floating,
+                    margin: const EdgeInsets.all(16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
                 );
               },
               child: Text(

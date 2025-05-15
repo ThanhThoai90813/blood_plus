@@ -1,5 +1,7 @@
 import 'package:blood_plus/core/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
+import 'package:blood_plus/features/onboarding/expert_advice_screen.dart';
+import 'package:blood_plus/features/onboarding/other_information_screen.dart';
 import 'package:blood_plus/features/onboarding/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -214,8 +216,7 @@ class _CampaignCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          SizedBox(
-            width: 100,
+          Expanded( // Use Expanded to take available space
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -230,7 +231,7 @@ class _CampaignCard extends StatelessWidget {
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    minFontSize: 12,
+                    minFontSize: 10, // Allow smaller font size
                   ),
                 AutoSizeText(
                   subtitle,
@@ -241,6 +242,7 @@ class _CampaignCard extends StatelessWidget {
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  minFontSize: 10, // Allow smaller font size
                 ),
               ],
             ),
@@ -381,28 +383,48 @@ class _FeatureGrid extends StatelessWidget {
         ),
         itemBuilder: (_, index) {
           final feature = features[index];
-          return Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: feature['color'].withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(15),
+          return GestureDetector(
+            onTap: () {
+              if (feature['title'] == 'expert_advice') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ExpertAdviceScreen(),
+                  ),
+                );
+              } else if (feature['title'] == 'information') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const InformationScreen(),
+                  ),
+                );
+              }
+              // Add handling for other features if needed
+            },
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: feature['color'].withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Icon(feature['icon'], size: 32, color: feature['color']),
                 ),
-                child: Icon(feature['icon'], size: 32, color: feature['color']),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                localizations.translate(feature['title']),
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  height: 1.4,
-                  color: Colors.black87,
+                const SizedBox(height: 8),
+                Text(
+                  localizations.translate(feature['title']),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                    color: Colors.black87,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
