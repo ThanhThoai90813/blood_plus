@@ -61,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.primaryRed,
+        backgroundColor: AppColors.slideRed,
         elevation: 0,
         title: Text(
           localizations.translate('profile'),
@@ -106,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                   decoration: const BoxDecoration(
-                    color: AppColors.primaryRed,
+                    color: AppColors.lowerRed,
                     borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
                   ),
                   child: Column(
@@ -287,48 +287,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showLogoutConfirmationDialog(BuildContext context) {
     final AppLocalizations localizations = AppLocalizations.of(context);
-    showDialog(
+    DialogHelper.showLogoutConfirmationDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(localizations.translate('logout_confirm_title')),
-          content: Text(localizations.translate('logout_confirm_message')),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(localizations.translate('cancel')),
+      title: localizations.translate('logout_confirm_title'),
+      message: localizations.translate('logout_confirm_message'),
+      cancelButtonText: localizations.translate('cancel'),
+      confirmButtonText: localizations.translate('confirm'),
+      onConfirm: () {
+        // Navigate to LoginScreen
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+        );
+        // Show success SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(localizations.translate('logout_success_message')),
+            backgroundColor: AppColors.lowerRed,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Navigate to LoginScreen
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      (route) => false,
-                );
-                // Show success SnackBar
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(localizations.translate('logout_success_message')),
-                    backgroundColor: AppColors.lowerRed,
-                    behavior: SnackBarBehavior.floating,
-                    margin: const EdgeInsets.all(16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              },
-              child: Text(
-                localizations.translate('confirm'),
-                style: const TextStyle(color: AppColors.primaryRed),
-              ),
-            ),
-          ],
+            duration: const Duration(seconds: 2),
+            elevation: 0,
+          ),
         );
       },
     );

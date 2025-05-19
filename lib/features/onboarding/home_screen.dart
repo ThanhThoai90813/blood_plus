@@ -3,6 +3,7 @@ import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:blood_plus/features/onboarding/expert_advice_screen.dart';
 import 'package:blood_plus/features/onboarding/other_information_screen.dart';
 import 'package:blood_plus/features/onboarding/profile_screen.dart';
+import 'package:blood_plus/features/onboarding/schedule_donation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/custom_button_navBar.dart';
+import 'dart:math' as math;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -117,16 +119,16 @@ class _HeaderSection extends StatelessWidget {
                   Text(
                     'Duong Thanh Thoai',
                     style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.white,
                     ),
                   ),
                   Text(
                     'P13, Binh Thanh, HCM',
                     style: GoogleFonts.poppins(
-                      color: AppColors.white,
-                      fontSize: 14,
+                      color: Colors.white70,
+                      fontSize: 13,
                     ),
                   ),
                 ],
@@ -135,7 +137,7 @@ class _HeaderSection extends StatelessWidget {
               const Icon(Icons.notifications, color: Colors.white, size: 30),
             ],
           ),
-          const SizedBox(height: 1),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -153,22 +155,188 @@ class _HeaderSection extends StatelessWidget {
                   onTap: () {
                     DialogHelper.showAnimatedSuccessDialog(
                       context: context,
-                      title: localizations.translate('notification_message'),
-                      message: localizations.translate('notification_message'),
+                      title: localizations.translate('donation_day_count_title'),
+                      message: localizations.translate('donation_day_count_message').replaceAll('{days}', '0'),
                       buttonText: localizations.translate('ok'),
                     );
                   },
-                  child: _CampaignCard(
-                    title: '',
-                    subtitle: localizations.translate('days_left'),
-                    image: 'assets/images/blood.png',
-                    color: Colors.red,
+                  child: _ProgressCircle(
+                    daysLeft: 40,
+                    totalDays: 90,
+                    label: localizations.translate('days_left'),
                   ),
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ProgressCircle extends StatefulWidget {
+  final int daysLeft;
+  final int totalDays;
+  final String label;
+
+  const _ProgressCircle({
+    required this.daysLeft,
+    required this.totalDays,
+    required this.label,
+  });
+
+  @override
+  _ProgressCircleState createState() => _ProgressCircleState();
+}
+
+class _ProgressCircleState extends State<_ProgressCircle> with SingleTickerProviderStateMixin {
+  late AnimationController _glowController;
+  late Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _glowController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat(reverse: true);
+    _glowAnimation = Tween<double>(begin: 0.4, end: 0.8).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _glowController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations localizations = AppLocalizations.of(context);
+    final double progress = (widget.totalDays - widget.daysLeft) / widget.totalDays;
+    final bool canDonate = widget.daysLeft == 0;
+
+    return GestureDetector(
+      onTap: () {
+        DialogHelper.showAnimatedSuccessDialog(
+          context: context,
+          title: canDonate
+              ? localizations.translate('donation_today_title')
+              : localizations.translate('donation_day_count_title'),
+          message: canDonate
+              ? localizations.translate('donation_today_message')
+              : localizations.translate('donation_day_count_message').replaceAll('{days}', widget.daysLeft.toString()),
+          buttonText: localizations.translate('ok'),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                // Gradient background circle
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        canDonate ? Colors.green.withOpacity(0.3) : Colors.pink.withOpacity(0.3),
+                        Colors.white.withOpacity(0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: canDonate
+                        ? [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(_glowAnimation.value * 0.4),
+                        blurRadius: 12,
+                        spreadRadius: 3,
+                      ),
+                    ]
+                        : [
+                      BoxShadow(
+                        color: Colors.red.withOpacity(_glowAnimation.value * 0.2),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+                // Progress circle
+                SizedBox(
+                  width: 66,
+                  height: 66,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 14,
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      canDonate ? Colors.green : Colors.red,
+                    ),
+                    semanticsLabel: canDonate
+                        ? localizations.translate('donation_today_title')
+                        : localizations.translate('days_left').replaceAll('{days}', widget.daysLeft.toString()),
+                  ),
+                ),
+                // Center content
+                canDonate
+                    ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                      size: 32,
+                      semanticLabel: localizations.translate('donation_today_title'),
+                    ),
+                  ],
+                )
+                    : Text(
+                  '${widget.daysLeft}',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  semanticsLabel: localizations.translate('days_left').replaceAll('{days}', widget.daysLeft.toString()),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            AutoSizeText(
+              canDonate
+                  ? localizations.translate('donation_today_title')
+                  : localizations.translate('days_left').replaceAll('{days}', widget.daysLeft.toString()),
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 2,
+              minFontSize: 10,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -190,7 +358,7 @@ class _CampaignCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
@@ -215,8 +383,8 @@ class _CampaignCard extends StatelessWidget {
               fit: BoxFit.contain,
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded( // Use Expanded to take available space
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -226,23 +394,23 @@ class _CampaignCard extends StatelessWidget {
                     title,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    minFontSize: 10, // Allow smaller font size
+                    minFontSize: 12,
                   ),
                 AutoSizeText(
                   subtitle,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  minFontSize: 10, // Allow smaller font size
+                  minFontSize: 12,
                 ),
               ],
             ),
@@ -278,15 +446,16 @@ class _NewsCarouselState extends State<_NewsCarousel> {
           child: Text(
             localizations.translate('news'),
             style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
           ),
         ),
         const SizedBox(height: 16),
         CarouselSlider(
           options: CarouselOptions(
-            height: 220,
+            height: 260,
             autoPlay: true,
             enlargeCenterPage: true,
             viewportFraction: 0.8,
@@ -318,15 +487,35 @@ class _NewsCarouselState extends State<_NewsCarousel> {
                     ),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: AutoSizeText(
-                          item['title']!,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 48,
+                              child: AutoSizeText(
+                                item['title']!,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.4,
+                                  color: Colors.black87,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                minFontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              item['date']!,
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -399,8 +588,14 @@ class _FeatureGrid extends StatelessWidget {
                     builder: (context) => const InformationScreen(),
                   ),
                 );
+              } else if (feature['title'] == 'schedule_donation') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ScheduleDonationScreen(),
+                  ),
+                );
               }
-              // Add handling for other features if needed
             },
             child: Column(
               children: [
@@ -412,15 +607,15 @@ class _FeatureGrid extends StatelessWidget {
                   ),
                   child: Icon(feature['icon'], size: 32, color: feature['color']),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Text(
                   localizations.translate(feature['title']),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                     height: 1.4,
-                    color: Colors.black87,
+                    color: Colors.black,
                   ),
                 ),
               ],

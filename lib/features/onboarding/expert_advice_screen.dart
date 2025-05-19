@@ -4,8 +4,114 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization.dart';
 
-class ExpertAdviceScreen extends StatelessWidget {
+class ExpertAdviceScreen extends StatefulWidget {
   const ExpertAdviceScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ExpertAdviceScreen> createState() => _ExpertAdviceScreenState();
+}
+
+class _ExpertAdviceScreenState extends State<ExpertAdviceScreen> {
+  final List<ExpansionPanelItem> _items = [
+    ExpansionPanelItem(
+      header: 'who_can_donate',
+      subtitle: 'who_can_donate_subtitle',
+      icon: Icons.person,
+      children: [
+        _TipCard(
+          title: 'who_can_donate',
+          description: 'who_can_donate_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'before_donation',
+      subtitle: 'before_donation_subtitle',
+      icon: Icons.local_drink,
+      children: [
+        _TipCard(
+          title: 'tip_hydrate',
+          description: 'tip_hydrate_desc',
+        ),
+        _TipCard(
+          title: 'tip_sleep',
+          description: 'tip_sleep_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'eat_before_donation',
+      subtitle: 'eat_before_donation_subtitle',
+      icon: Icons.restaurant,
+      children: [
+        _TipCard(
+          title: 'tip_eat_iron',
+          description: 'tip_eat_iron_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'donation_process',
+      subtitle: 'donation_process_subtitle',
+      icon: Icons.medical_services,
+      children: [
+        _TipCard(
+          title: 'donation_process',
+          description: 'donation_process_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'after_donation',
+      subtitle: 'after_donation_subtitle',
+      icon: Icons.self_improvement,
+      children: [
+        _TipCard(
+          title: 'tip_rest',
+          description: 'tip_rest_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'how_often_donate',
+      subtitle: 'how_often_donate_subtitle',
+      icon: Icons.calendar_today,
+      children: [
+        _TipCard(
+          title: 'how_often_donate',
+          description: 'how_often_donate_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'donation_risks',
+      subtitle: 'donation_risks_subtitle',
+      icon: Icons.warning,
+      children: [
+        _TipCard(
+          title: 'donation_risks',
+          description: 'donation_risks_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'information',
+      subtitle: 'information',
+      icon: Icons.local_hospital,
+      children: [
+        _MedicalFacilityCard(
+          name: 'Chợ Rẫy Hospital',
+          address: '201B Nguyễn Chí Thanh, District 5, HCM',
+          image: 'assets/images/news1.jpg',
+        ),
+        _MedicalFacilityCard(
+          name: 'Blood Transfusion Center',
+          address: '118 Hồng Bàng, District 5, HCM',
+          image: 'assets/images/news1.jpg',
+        ),
+      ],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -13,195 +119,191 @@ class ExpertAdviceScreen extends StatelessWidget {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100], // A softer background
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: AppColors.primaryRed,
-        elevation: 2, // Add a subtle shadow
+        elevation: 4,
         title: Text(
           localizations.translate('expert_advice'),
           style: GoogleFonts.poppins(
             color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white), // Use iOS style back arrow
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView( // Use SingleChildScrollView for better scroll handling
-        padding: EdgeInsets.fromLTRB(16, 16, 16, statusBarHeight + 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSection(
-              title: localizations.translate('before_donation'),
-              subtitle: localizations.translate('before_donation_subtitle'),
-              children: [
-                _TipCard(
-                  title: localizations.translate('tip_hydrate'),
-                  description: localizations.translate('tip_hydrate_desc'),
-                  image: 'assets/images/banner.jpg',
-                ),
-                const SizedBox(height: 12),
-                _TipCard(
-                  title: localizations.translate('tip_sleep'),
-                  description: localizations.translate('tip_sleep_desc'),
-                  image: 'assets/images/news1.jpg',
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildSection(
-              title: localizations.translate('eat_before_donation'),
-              subtitle: localizations.translate('eat_before_donation_subtitle'),
-              children: [
-                _TipCard(
-                  title: localizations.translate('tip_eat_iron'),
-                  description: localizations.translate('tip_eat_iron_desc'),
-                  image: 'assets/images/profile.jpg',
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildSection(
-              title: localizations.translate('after_donation'),
-              subtitle: localizations.translate('after_donation_subtitle'),
-              children: [
-                _TipCard(
-                  title: localizations.translate('tip_rest'),
-                  description: localizations.translate('tip_rest_desc'),
-                  image: 'assets/images/news2.jpg',
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildSection(
-              title: localizations.translate('information'),
-              subtitle: 'Learn about our partnered medical centers for blood donation.',
-              children: [
-                _MedicalFacilityCard(
-                  name: 'Chợ Rẫy Hospital',
-                  address: '201B Nguyễn Chí Thanh, District 5, HCM',
-                  image: 'assets/images/news1.jpg',
-                ),
-                const SizedBox(height: 12),
-                _MedicalFacilityCard(
-                  name: 'Blood Transfusion Center',
-                  address: '118 Hồng Bàng, District 5, HCM',
-                  image: 'assets/images/news1.jpg',
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-          ],
+      body: Padding(
+        padding: EdgeInsets.fromLTRB(20, 20, 20, statusBarHeight + 20),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ExpansionPanelList(
+                expansionCallback: (int index, bool isExpanded) {
+                  print('Expansion callback triggered for index: $index, isExpanded: $isExpanded');
+                  setState(() {
+                    _items[index].isExpanded = !isExpanded;
+                  });
+                },
+                children: _items.map<ExpansionPanel>((ExpansionPanelItem item) {
+                  return ExpansionPanel(
+                    headerBuilder: (context, isExpanded) {
+                      return GestureDetector(
+                        onTap: () {
+                          print('Header tapped for ${item.header}');
+                          setState(() {
+                            item.isExpanded = !item.isExpanded;
+                          });
+                        },
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          leading: Icon(item.icon, color: AppColors.primaryRed, size: 28),
+                          title: ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [AppColors.primaryRed, AppColors.darkRed],
+                            ).createShader(bounds),
+                            child: Text(
+                              localizations.translate(item.header),
+                              style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              localizations.translate(item.subtitle),
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.grey[800],
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    body: Padding(
+                      padding: const EdgeInsets.only(left: 48, top: 8, bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: item.children,
+                      ),
+                    ),
+                    isExpanded: item.isExpanded,
+                    canTapOnHeader: true,
+                  );
+                }).toList(),
+                dividerColor: Colors.transparent,
+                elevation: 2,
+                animationDuration: const Duration(milliseconds: 300),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildSection({
-    required String title,
-    required String subtitle,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          subtitle,
-          style: GoogleFonts.poppins(
-            fontSize: 17,
-            color: Colors.grey[700],
-          ),
-        ),
-        const SizedBox(height: 16),
-        ...children,
-      ],
-    );
-  }
+class ExpansionPanelItem {
+  bool isExpanded;
+  final String header;
+  final String subtitle;
+  final IconData icon;
+  final List<Widget> children;
+
+  ExpansionPanelItem({
+    this.isExpanded = false,
+    required this.header,
+    required this.subtitle,
+    required this.icon,
+    required this.children,
+  });
 }
 
 class _TipCard extends StatelessWidget {
   final String title;
   final String description;
-  final String image;
+  final String? image;
 
   const _TipCard({
     required this.title,
     required this.description,
-    required this.image,
+    this.image,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final AppLocalizations localizations = AppLocalizations.of(context);
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12), // Slightly less rounded
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey[50]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3), // Softer shadow
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center, // Align items vertically in the center
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0), // Add some padding around the image
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10), // Slightly rounded image
-              child: Image.asset(
-                image,
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (image != null) ...[
+              ClipRRect(
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(15)),
+                child: Image.asset(
+                  image!,
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              const SizedBox(width: 16),
+            ],
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AutoSizeText(
-                    title,
+                    localizations.translate(title),
                     style: GoogleFonts.poppins(
                       fontSize: 18,
-                      fontWeight: FontWeight.w500, // Slightly lighter bold
+                      fontWeight: FontWeight.w600,
                       color: AppColors.black,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   AutoSizeText(
-                    description,
+                    localizations.translate(description),
                     style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      color: Colors.grey[800],
-                      height: 1.4, // Improve line spacing
+                      fontSize: 14,
+                      color: Colors.grey[900],
+                      height: 1.6,
                     ),
-                    maxLines: 3,
+                    maxLines: 10,
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -220,45 +322,60 @@ class _MedicalFacilityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4, // Slightly stronger elevation
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey[100]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
             child: Image.asset(
               image,
-              height: 140, // Adjust image height
+              height: 160,
               width: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16), // More padding inside
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
                   style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.black,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, color: Colors.grey, size: 16),
-                    const SizedBox(width: 4),
+                    const Icon(Icons.location_on, color: Colors.grey, size: 18),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         address,
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.grey[700],
+                          fontSize: 15,
+                          color: Colors.grey[800],
                         ),
                       ),
                     ),

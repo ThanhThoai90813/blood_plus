@@ -11,50 +11,67 @@ class InformationScreen extends StatefulWidget {
   State<InformationScreen> createState() => _InformationScreenState();
 }
 
-class _InformationScreenState extends State<InformationScreen>
-    with TickerProviderStateMixin {
+class _InformationScreenState extends State<InformationScreen> with TickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
 
   final List<Map<String, String>> emergencyNumbers = [
-    {'name': 'Holy Family Red Crescent', 'number': '16226'},
-    {'name': 'Bangladesh Red Crescent Blood Bank', 'number': '01811-458537'},
-    {'name': 'Quantum Blood Bank', 'number': '01714-010869'},
-    {'name': 'Shandhani, DMC', 'number': '01819284878'},
-    {'name': 'Police Blood Bank', 'number': '01320-037333'},
-    {'name': 'Bangladesh Blood Bank', 'number': '01850-077185'},
+    {
+      'name': 'Trung tâm Truyền máu Chợ Rẫy',
+      'number': '(+84) 28 3855 5730',
+    },
+    {
+      'name': 'Viện Huyết học - Truyền máu Trung ương',
+      'number': '(+84) 24 3868 6008',
+    },
+    {
+      'name': 'Trung tâm Truyền máu Bệnh viện Bạch Mai',
+      'number': '(+84) 24 3869 3721',
+    },
+    {
+      'name': 'Hội Chữ thập đỏ TP.HCM',
+      'number': '(+84) 28 3829 1151',
+    },
+    {
+      'name': 'Trung tâm Cấp cứu 115 TP.HCM',
+      'number': '115',
+    },
+    {
+      'name': 'Trung tâm Cấp cứu 115 Hà Nội',
+      'number': '115',
+    },
   ];
 
   final List<Map<String, String>> donateHospitals = [
     {
-      'name': 'BIRDEM General Hospital',
-      'address': 'Eskaton Garden Road',
-      'phone': '(+88) 02 55165760-94',
+      'name': 'Bệnh viện Chợ Rẫy',
+      'address': '201B Nguyễn Chí Thanh, Quận 5, TP.HCM',
+      'phone': '(+84) 28 3855 4137',
     },
     {
-      'name': 'BSMMU',
-      'address': 'Shahbag, Dhaka',
-      'phone': '(+88) 02 55165760-94',
+      'name': 'Bệnh viện Bạch Mai',
+      'address': '78 Giải Phóng, Đống Đa, Hà Nội',
+      'phone': '(+84) 24 3869 3721',
     },
     {
-      'name': 'Dhaka Medical College',
-      'address': 'Secretariat Rd, Dhaka - 1000',
-      'phone': '+880775016984',
+      'name': 'Bệnh viện Việt Đức',
+      'address': '40 Tràng Thi, Hoàn Kiếm, Hà Nội',
+      'phone': '(+84) 24 3825 3531',
     },
     {
-      'name': 'Evercare Hospital',
-      'address': 'Bashundhara R/A, Dhaka - 1229',
-      'phone': '+8809666-710678',
+      'name': 'Bệnh viện FV',
+      'address': '6 Nguyễn Lương Bằng, Quận 7, TP.HCM',
+      'phone': '(+84) 28 5411 3333',
     },
     {
-      'name': 'Kurmitola General Hospital',
-      'address': 'Tongi Diversion Rd, Dhaka - 1229',
-      'phone': '+880255062388',
+      'name': 'Bệnh viện Vinmec Central Park',
+      'address': '208 Nguyễn Hữu Cảnh, Quận Bình Thạnh, TP.HCM',
+      'phone': '(+84) 28 3622 1166',
     },
     {
-      'name': 'Square Hospital',
-      'address': 'Panthapath, Dhaka - 1205',
-      'phone': '+8809610-010616',
+      'name': 'Bệnh viện Từ Dũ',
+      'address': '284 Cống Quỳnh, Quận 1, TP.HCM',
+      'phone': '(+84) 28 5404 2829',
     },
   ];
 
@@ -78,11 +95,15 @@ class _InformationScreenState extends State<InformationScreen>
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context).translate('cannot_make_call')),
+          content: Text(
+            AppLocalizations.of(context).translate('cannot_make_call'),
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
           backgroundColor: AppColors.darkRed,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -91,12 +112,13 @@ class _InformationScreenState extends State<InformationScreen>
   @override
   Widget build(BuildContext context) {
     final AppLocalizations localizations = AppLocalizations.of(context);
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.black),
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.black, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -104,43 +126,66 @@ class _InformationScreenState extends State<InformationScreen>
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w700,
             color: AppColors.black,
-            fontSize: 20,
+            fontSize: 22,
           ),
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: AppColors.black),
-            onPressed: () {},
+            icon: const Icon(Icons.notifications, color: AppColors.black, size: 24),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    localizations.translate('notifications_not_implemented'),
+                    style: GoogleFonts.poppins(fontSize: 14),
+                  ),
+                  backgroundColor: AppColors.darkRed,
+                  behavior: SnackBarBehavior.floating,
+                  margin: const EdgeInsets.all(16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              );
+            },
           ),
         ],
         backgroundColor: AppColors.white,
-        elevation: 2,
-        shadowColor: Colors.grey.withOpacity(0.2),
+        elevation: 3,
+        shadowColor: Colors.grey.withOpacity(0.3),
       ),
       body: Column(
         children: [
-          // Custom TabBar
           Container(
-            color: AppColors.white,
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
             child: TabBar(
               controller: _tabController,
               labelStyle: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
-                fontSize: 14, // Reduced font size
+                fontSize: 16,
               ),
               unselectedLabelStyle: GoogleFonts.poppins(
                 fontWeight: FontWeight.w400,
-                fontSize: 14,
+                fontSize: 16,
               ),
               indicator: BoxDecoration(
                 color: AppColors.primaryRed,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(30),
               ),
               labelColor: AppColors.white,
-              unselectedLabelColor: AppColors.black.withOpacity(0.6),
-              labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+              unselectedLabelColor: AppColors.black.withOpacity(0.7),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.all(4),
               tabs: [
                 Tab(text: localizations.translate('emergency_number_hotline')),
                 Tab(text: localizations.translate('donate_blood')),
@@ -151,8 +196,8 @@ class _InformationScreenState extends State<InformationScreen>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildEmergencyTab(localizations),
-                _buildDonateTab(localizations),
+                _buildEmergencyTab(localizations, screenWidth),
+                _buildDonateTab(localizations, screenWidth),
               ],
             ),
           ),
@@ -161,60 +206,64 @@ class _InformationScreenState extends State<InformationScreen>
     );
   }
 
-  Widget _buildEmergencyTab(AppLocalizations localizations) {
+  Widget _buildEmergencyTab(AppLocalizations localizations, double screenWidth) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Search Bar
-          TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: localizations.translate('search'),
-              hintStyle: GoogleFonts.poppins(color: Colors.grey[500]),
-              prefixIcon: const Icon(Icons.search, color: AppColors.primaryRed),
-              filled: true,
-              fillColor: Colors.grey[100],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            style: GoogleFonts.poppins(fontSize: 16),
-            onChanged: (value) => setState(() {}),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: localizations.translate('search'),
+                hintStyle: GoogleFonts.poppins(color: Colors.grey[500], fontSize: 16),
+                prefixIcon: const Icon(Icons.search, color: AppColors.primaryRed, size: 24),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              ),
+              style: GoogleFonts.poppins(fontSize: 16),
+              onChanged: (value) => setState(() {}),
+            ),
           ),
-          const SizedBox(height: 16),
-          // Section Header
+          const SizedBox(height: 20),
           Text(
             localizations.translate('emergency_contacts'),
             style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
               color: AppColors.black,
             ),
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Expanded(
             child: ListView.builder(
-              physics: const ClampingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               itemCount: emergencyNumbers.length,
               itemBuilder: (context, index) {
                 final emergency = emergencyNumbers[index];
                 if (_searchController.text.isNotEmpty &&
-                    !emergency['name']!
-                        .toLowerCase()
-                        .contains(_searchController.text.toLowerCase())) {
+                    !emergency['name']!.toLowerCase().contains(_searchController.text.toLowerCase())) {
                   return const SizedBox.shrink();
                 }
-                return FadeTransition(
-                  opacity: CurvedAnimation(
-                    parent: AlwaysStoppedAnimation(1.0),
-                    curve: Curves.easeIn,
-                  ),
-                  child: _buildEmergencyCard(emergency, localizations),
+                return _AnimatedCard(
+                  child: _buildEmergencyCard(emergency, localizations, screenWidth),
+                  index: index,
                 );
               },
             ),
@@ -224,60 +273,64 @@ class _InformationScreenState extends State<InformationScreen>
     );
   }
 
-  Widget _buildDonateTab(AppLocalizations localizations) {
+  Widget _buildDonateTab(AppLocalizations localizations, double screenWidth) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Search Bar
-          TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: localizations.translate('search'),
-              hintStyle: GoogleFonts.poppins(color: Colors.grey[500]),
-              prefixIcon: const Icon(Icons.search, color: AppColors.primaryRed),
-              filled: true,
-              fillColor: Colors.grey[100],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            style: GoogleFonts.poppins(fontSize: 16),
-            onChanged: (value) => setState(() {}),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: localizations.translate('search'),
+                hintStyle: GoogleFonts.poppins(color: Colors.grey[500], fontSize: 16),
+                prefixIcon: const Icon(Icons.search, color: AppColors.primaryRed, size: 24),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              ),
+              style: GoogleFonts.poppins(fontSize: 16),
+              onChanged: (value) => setState(() {}),
+            ),
           ),
-          const SizedBox(height: 16),
-          // Section Header
+          const SizedBox(height: 20),
           Text(
             localizations.translate('donation_centers'),
             style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
               color: AppColors.black,
             ),
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Expanded(
             child: ListView.builder(
-              physics: const ClampingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               itemCount: donateHospitals.length,
               itemBuilder: (context, index) {
                 final hospital = donateHospitals[index];
                 if (_searchController.text.isNotEmpty &&
-                    !hospital['name']!
-                        .toLowerCase()
-                        .contains(_searchController.text.toLowerCase())) {
+                    !hospital['name']!.toLowerCase().contains(_searchController.text.toLowerCase())) {
                   return const SizedBox.shrink();
                 }
-                return FadeTransition(
-                  opacity: CurvedAnimation(
-                    parent: AlwaysStoppedAnimation(1.0),
-                    curve: Curves.easeIn,
-                  ),
-                  child: _buildHospitalCard(hospital, localizations),
+                return _AnimatedCard(
+                  child: _buildHospitalCard(hospital, localizations, screenWidth),
+                  index: index,
                 );
               },
             ),
@@ -287,101 +340,89 @@ class _InformationScreenState extends State<InformationScreen>
     );
   }
 
-  Widget _buildEmergencyCard(Map<String, String> emergency, AppLocalizations localizations) {
+  Widget _buildEmergencyCard(Map<String, String> emergency, AppLocalizations localizations, double screenWidth) {
     return Card(
-      elevation: 4,
+      elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           gradient: LinearGradient(
-            colors: [
-              AppColors.white,
-              Colors.grey[50]!,
-            ],
+            colors: [AppColors.white, Colors.grey[50]!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           leading: CircleAvatar(
-            radius: 20, // Reduced size
-            backgroundColor: AppColors.primaryRed.withOpacity(0.1),
+            radius: 24,
+            backgroundColor: AppColors.primaryRed.withOpacity(0.15),
             child: const Icon(
               Icons.local_hospital,
               color: AppColors.primaryRed,
-              size: 24,
+              size: 28,
             ),
           ),
           title: Text(
             emergency['name']!,
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
-              fontSize: 15, // Reduced font size
+              fontSize: 16,
               color: AppColors.black,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
             emergency['number']!,
             style: GoogleFonts.poppins(
               color: Colors.grey[600],
-              fontSize: 13, // Reduced font size
+              fontSize: 14,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
           trailing: IconButton(
-            icon: const Icon(Icons.call, color: Colors.green, size: 22), // Reduced size
+            icon: const Icon(Icons.call, color: Colors.green, size: 24),
             onPressed: () => _makePhoneCall(emergency['number']!),
-            constraints: const BoxConstraints(), // Remove default padding
-            padding: EdgeInsets.zero,
+            tooltip: localizations.translate('call'),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          dense: true, // Reduce vertical spacing
+          onTap: () => _makePhoneCall(emergency['number']!),
         ),
       ),
     );
   }
 
-  Widget _buildHospitalCard(Map<String, String> hospital, AppLocalizations localizations) {
+  Widget _buildHospitalCard(Map<String, String> hospital, AppLocalizations localizations, double screenWidth) {
     return Card(
-      elevation: 4,
+      elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           gradient: LinearGradient(
-            colors: [
-              AppColors.white,
-              Colors.grey[50]!,
-            ],
+            colors: [AppColors.white, Colors.grey[50]!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           leading: CircleAvatar(
-            radius: 20, // Reduced size
-            backgroundColor: AppColors.blue.withOpacity(0.1),
+            radius: 24,
+            backgroundColor: AppColors.blue.withOpacity(0.15),
             child: const Icon(
               Icons.local_hospital,
               color: AppColors.blue,
-              size: 24,
+              size: 28,
             ),
           ),
           title: Text(
             hospital['name']!,
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
-              fontSize: 15, // Reduced font size
+              fontSize: 16,
               color: AppColors.black,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,40 +431,39 @@ class _InformationScreenState extends State<InformationScreen>
                 hospital['address']!,
                 style: GoogleFonts.poppins(
                   color: Colors.grey[600],
-                  fontSize: 13, // Reduced font size
+                  fontSize: 14,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-              if (hospital['phone'] != null)
-                Row(
-                  children: [
-                    const Icon(Icons.phone, color: Colors.grey, size: 12),
-                    const SizedBox(width: 4),
-                    Flexible( // Wrap phone number in Flexible
-                      child: Text(
-                        hospital['phone']!,
-                        style: GoogleFonts.poppins(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.phone, color: Colors.grey, size: 16),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      hospital['phone']!,
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey[600],
+                        fontSize: 14,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
             ],
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.location_on, color: AppColors.blue, size: 22),
+                icon: const Icon(Icons.location_on, color: AppColors.blue, size: 24),
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(localizations.translate('location_not_implemented')),
+                      content: Text(
+                        localizations.translate('location_not_implemented'),
+                        style: GoogleFonts.poppins(fontSize: 14),
+                      ),
                       backgroundColor: AppColors.darkRed,
                       behavior: SnackBarBehavior.floating,
                       margin: const EdgeInsets.all(16),
@@ -431,20 +471,68 @@ class _InformationScreenState extends State<InformationScreen>
                     ),
                   );
                 },
-                constraints: const BoxConstraints(),
-                padding: EdgeInsets.zero,
+                tooltip: localizations.translate('view_location'),
               ),
               IconButton(
-                icon: const Icon(Icons.call, color: Colors.green, size: 22),
+                icon: const Icon(Icons.call, color: Colors.green, size: 24),
                 onPressed: () => _makePhoneCall(hospital['phone']!),
-                constraints: const BoxConstraints(),
-                padding: EdgeInsets.zero,
+                tooltip: localizations.translate('call'),
               ),
             ],
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          dense: true, // Reduce vertical spacing
         ),
+      ),
+    );
+  }
+}
+
+class _AnimatedCard extends StatefulWidget {
+  final Widget child;
+  final int index;
+
+  const _AnimatedCard({required this.child, required this.index});
+
+  @override
+  _AnimatedCardState createState() => _AnimatedCardState();
+}
+
+class _AnimatedCardState extends State<_AnimatedCard> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 600 + (widget.index * 100)),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.2, 0.0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: widget.child,
       ),
     );
   }
