@@ -102,6 +102,54 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _handleGoogleLogin() async {
+    final localizations = AppLocalizations.of(context);
+    setState(() => _isLoading = true);
+    try {
+      final authService = AuthService();
+      final response = await authService.loginWithGoogle({
+        'login_success': localizations.translate('login_success'),
+        'login_failed': localizations.translate('login_failed'),
+        'connection_error': localizations.translate('connection_error'),
+      });
+
+      final userManager = UserManager();
+      await userManager.saveUserToken(response['accessToken']);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.translate('login_successful')),
+          backgroundColor: AppColors.lowerRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đăng nhập Google thất bại: $e'),
+          backgroundColor: AppColors.darkRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
@@ -234,9 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
                 OutlinedButton.icon(
-                  onPressed: () {
-                    print('Sign in with Google pressed');
-                  },
+                  onPressed: _isLoading ? null : _handleGoogleLogin,
                   icon: Image.asset(
                     'assets/icons/google_logo.png',
                     width: 24,
