@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/localization.dart';
+import '../../core/language_helper/localization.dart';
 
 class ExpertAdviceScreen extends StatefulWidget {
   const ExpertAdviceScreen({Key? key}) : super(key: key);

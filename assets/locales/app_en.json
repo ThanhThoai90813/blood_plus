@@ -136,5 +136,7 @@
   "donation_day_count_message": "You will be eligible to donate blood in {days} day(s). Stay healthy and get ready to make a difference!",
   "donation_day_count_title": "Donate Blood – A Noble Act",
   "donation_today_message": "You are eligible to donate blood today! Visit the nearest donation center and save lives.",
-  "donation_today_title": "You're Ready to Donate!"
+  "donation_today_title": "You're Ready to Donate!",
+  "login_failed": "Login failed: {statusCode} - {message}",
+  "connection_error": "Connection error: {error}"
 }

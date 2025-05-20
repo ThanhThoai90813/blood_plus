@@ -141,5 +141,7 @@
   "donation_day_count_message": "Bạn sẽ đủ điều kiện hiến máu sau {days} ngày nữa. Hãy chuẩn bị sức khỏe để giúp đỡ cộng đồng!",
   "donation_day_count_title": "Hiến máu – Nghĩa cử cao đẹp",
   "donation_today_message": "Hôm nay bạn đã đủ điều kiện hiến máu! Hãy đến điểm hiến máu gần nhất để chia sẻ sự sống.",
-  "donation_today_title": "Bạn đã sẵn sàng hiến máu!"
+  "donation_today_title": "Bạn đã sẵn sàng hiến máu!",
+  "login_failed": "Đăng nhập thất bại: {statusCode} - {message}",
+  "connection_error": "Lỗi kết nối: {error}"
 }

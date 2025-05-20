@@ -1,4 +1,4 @@
-import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:blood_plus/features/auth/login_screen.dart';
 import 'package:blood_plus/features/auth/sign_up_screen.dart';
 import 'package:flutter/material.dart';

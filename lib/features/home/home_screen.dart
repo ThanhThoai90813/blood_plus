@@ -1,9 +1,9 @@
-import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
-import 'package:blood_plus/features/onboarding/expert_advice_screen.dart';
-import 'package:blood_plus/features/onboarding/other_information_screen.dart';
-import 'package:blood_plus/features/onboarding/profile_screen.dart';
-import 'package:blood_plus/features/onboarding/schedule_donation_screen.dart';
+import 'package:blood_plus/features/home/expert_advice_screen.dart';
+import 'package:blood_plus/features/home/other_information_screen.dart';
+import 'package:blood_plus/features/user/profile_screen.dart';
+import 'package:blood_plus/features/schedule/schedule_donation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';

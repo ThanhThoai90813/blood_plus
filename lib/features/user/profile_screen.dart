@@ -1,14 +1,15 @@
-import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
+import 'package:blood_plus/features/user/account_infor_screen.dart';
+import 'package:blood_plus/features/user/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/custom_button_navBar.dart';
 import '../auth/login_screen.dart';
-import '../onboarding/account_infor_screen.dart';
-import '../onboarding/home_screen.dart';
-import '../onboarding/settings_screen.dart';
+import '../home/home_screen.dart';
 import '../../core/utils/dialog_helper.dart';
+import '../../core/services/user_manager.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -287,33 +288,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showLogoutConfirmationDialog(BuildContext context) {
     final AppLocalizations localizations = AppLocalizations.of(context);
+    final userManager = UserManager();
+
     DialogHelper.showLogoutConfirmationDialog(
       context: context,
       title: localizations.translate('logout_confirm_title'),
       message: localizations.translate('logout_confirm_message'),
       cancelButtonText: localizations.translate('cancel'),
       confirmButtonText: localizations.translate('confirm'),
-      onConfirm: () {
-        // Navigate to LoginScreen
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false,
-        );
-        // Show success SnackBar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(localizations.translate('logout_success_message')),
-            backgroundColor: AppColors.lowerRed,
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            duration: const Duration(seconds: 2),
-            elevation: 0,
-          ),
-        );
+      onConfirm: () async {
+        try {
+          await userManager.clearUserData();
+
+          Navigator.of(context).pop();
+
+          if (mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(localizations.translate('logout_success_message')),
+                backgroundColor: AppColors.lowerRed,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                duration: const Duration(seconds: 2),
+                elevation: 0,
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Đăng xuất thất bại: $e'),
+                backgroundColor: AppColors.darkRed,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          }
+        }
       },
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:intl/intl.dart';
 

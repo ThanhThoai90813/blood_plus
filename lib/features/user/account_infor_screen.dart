@@ -1,4 +1,4 @@
-import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

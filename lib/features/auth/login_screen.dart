@@ -1,10 +1,12 @@
-import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
+import 'package:blood_plus/core/services/auth_service.dart';
+import 'package:blood_plus/core/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import '../../core/widgets/custom_button.dart';
 import 'forgot_password_screen.dart';
 import 'sign_up_screen.dart';
-import '../onboarding/home_screen.dart';
+import '../home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,8 +19,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  void _handleLogin() {
+  void _handleLogin() async {
     final localizations = AppLocalizations.of(context);
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -35,31 +38,68 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Show success SnackBar at the top
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(localizations.translate('login_successful')),
-        backgroundColor: AppColors.lowerRed,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-
-    // Navigate to HomeScreen after a short delay to allow SnackBar to be visible
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
-      }
+    setState(() {
+      _isLoading = true;
     });
+
+    try {
+      final authService = AuthService();
+      final response = await authService.login(
+        _emailController.text,
+        _passwordController.text,
+        {
+          'login_success': localizations.translate('login_success'),
+          'login_failed': localizations.translate('login_failed'),
+          'connection_error': localizations.translate('connection_error'),
+        },
+      );
+
+      // Lưu token vào SharedPreferences
+      final userManager = UserManager();
+      await userManager.saveUserToken(response['accessToken']);
+
+      // Hiển thị thông báo đăng nhập thành công
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.translate('login_successful')),
+          backgroundColor: AppColors.lowerRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Chuyển đến HomeScreen
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
+          );
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đăng nhập thất bại: $e'),
+          backgroundColor: AppColors.darkRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -147,9 +187,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    text: localizations.translate('login'),
+                    text: _isLoading
+                        ? 'Đang đăng nhập...'
+                        : localizations.translate('login'),
                     color: AppColors.primaryRed,
-                    onPressed: _handleLogin,
+                    onPressed: _isLoading ? null : () => _handleLogin(),
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     borderRadius: 10,
                   ),

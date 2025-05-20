@@ -1,6 +1,6 @@
 import 'package:blood_plus/core/constants/app_colors.dart';
-import 'package:blood_plus/core/language_manager.dart';
-import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/language_helper/language_manager.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:blood_plus/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -145,11 +145,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 await languageManager.changeLanguage(_selectedLanguage);
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setBool('notifications_enabled', _notificationsEnabled);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(localizations.translate('saved_settings')),
-                  ),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(localizations.translate('saved_settings')),
+                    ),
+                  );
+                }
               },
               padding: const EdgeInsets.symmetric(vertical: 15),
               borderRadius: 10,
