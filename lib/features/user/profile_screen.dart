@@ -1,14 +1,16 @@
-import 'package:blood_plus/core/localization.dart';
-import 'package:blood_plus/core/utils/dialog_helper.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
+import 'package:blood_plus/features/user/account_infor_screen.dart';
+import 'package:blood_plus/features/user/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/custom_button_navBar.dart';
 import '../auth/login_screen.dart';
-import '../onboarding/account_infor_screen.dart';
-import '../onboarding/home_screen.dart';
-import '../onboarding/settings_screen.dart';
+import '../home/home_screen.dart';
+import '../../core/utils/dialog_helper.dart';
+import '../../core/services/user_manager.dart';
+import '../../core/models/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -20,11 +22,13 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isQrEnlarged = false;
   double _originalBrightness = 0.5;
+  UserModel? _user;
 
   @override
   void initState() {
     super.initState();
     _storeCurrentBrightness();
+    _loadUserInfo();
   }
 
   Future<void> _storeCurrentBrightness() async {
@@ -35,6 +39,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     } catch (e) {
       debugPrint('Error getting current brightness: $e');
+    }
+  }
+
+  Future<void> _loadUserInfo() async {
+    final userManager = UserManager();
+    final userId = await userManager.getUserId();
+    if (userId != null) {
+      final user = await userManager.getUserInfo(userId);
+      if (user != null) {
+        setState(() {
+          _user = user;
+        });
+      }
     }
   }
 
@@ -54,6 +71,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // Hàm tạo chuỗi dữ liệu QR từ thông tin người dùng
+  String _generateQrData(UserModel? user) {
+    if (user == null) {
+      return 'No user data available';
+    }
+
+    // Tạo chuỗi dữ liệu với các thông tin từ UserModel
+    final qrData = '''
+ud: ${user.id ?? 'N/A'}
+Name: ${user.name ?? 'N/A'}
+Address: ${user.address ?? 'N/A'}
+Date of Birth: ${user.dateOfBirth?.toString().split(' ')[0] ?? 'N/A'}
+Passport/ID: ${user.passportNumber ?? 'N/A'}
+Donation Count: ${user.donationCount?.toString() ?? '0'}
+Image URL: ${user.userImage ?? 'N/A'}
+Email: ${user.email ?? 'N/A'}
+Job: ${user.job ?? 'N/A'}
+BloodType: ${user.bloodType ?? 'N/A'}
+'''.trim();
+
+    return qrData;
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations localizations = AppLocalizations.of(context);
@@ -61,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.primaryRed,
+        backgroundColor: AppColors.slideRed,
         elevation: 0,
         title: Text(
           localizations.translate('profile'),
@@ -106,31 +146,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                   decoration: const BoxDecoration(
-                    color: AppColors.primaryRed,
+                    color: AppColors.lowerRed,
                     borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage('assets/images/profile.jpg'),
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey, width: 2),
+                        ),
+                        child: ClipOval(
+                          child: FadeInImage(
+                            placeholder: const AssetImage('assets/images/profile.jpg'),
+                            image: _user?.userImage != null && _user!.userImage!.startsWith('http')
+                                ? NetworkImage(_user!.userImage!)
+                                : const AssetImage('assets/images/profile.jpg') as ImageProvider,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                            imageErrorBuilder: (context, error, stackTrace) {
+                              debugPrint('Image load error for ${_user?.userImage}: $error');
+                              return Image.asset(
+                                'assets/images/profile.jpg',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Duong Thanh Thoai',
-                        style: TextStyle(
+                      Text(
+                        _user?.name ?? 'Loading...',
+                        style: const TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const Text(
-                        'P13, Binh Thanh, Ho Chi Minh',
-                        style: TextStyle(
+                      Text(
+                        _user?.address ?? 'Loading...',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -224,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                     child: QrImageView(
-                      data: 'Duong Thanh Thoai\n05/02/2003\n083203007395',
+                      data: _generateQrData(_user),
                       size: 300,
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
@@ -287,44 +354,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showLogoutConfirmationDialog(BuildContext context) {
     final AppLocalizations localizations = AppLocalizations.of(context);
-    showDialog(
+    final userManager = UserManager();
+
+    DialogHelper.showLogoutConfirmationDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(localizations.translate('logout_confirm_title')),
-          content: Text(localizations.translate('logout_confirm_message')),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(localizations.translate('cancel')),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      (route) => false,
-                );
-                DialogHelper.showAnimatedSuccessDialog(
-                  context: context,
-                  title: localizations.translate('logout_success_title'),
-                  message: localizations.translate('logout_success_message'),
-                  buttonText: localizations.translate('ok'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                );
-              },
-              child: Text(
-                localizations.translate('confirm'),
-                style: const TextStyle(color: AppColors.primaryRed),
+      title: localizations.translate('logout_confirm_title'),
+      message: localizations.translate('logout_confirm_message'),
+      cancelButtonText: localizations.translate('cancel'),
+      confirmButtonText: localizations.translate('confirm'),
+      onConfirm: () async {
+        try {
+          await userManager.clearUserData();
+
+          Navigator.of(context).pop();
+
+          if (context.mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(localizations.translate('logout_success_message')),
+                backgroundColor: AppColors.lowerRed,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                duration: const Duration(seconds: 2),
+                elevation: 0,
               ),
-            ),
-          ],
-        );
+            );
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Đăng xuất thất bại: $e'),
+                backgroundColor: AppColors.darkRed,
+                behavior: SnackBarBehavior.floating,
+                margin: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          }
+        }
       },
     );
   }

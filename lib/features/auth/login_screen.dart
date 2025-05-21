@@ -1,11 +1,12 @@
-import 'package:blood_plus/core/localization.dart';
-import 'package:blood_plus/core/utils/dialog_helper.dart';
-import 'package:blood_plus/features/auth/sign_up_screen.dart';
-import 'package:blood_plus/features/onboarding/home_screen.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
+import 'package:blood_plus/core/services/auth_service.dart';
+import 'package:blood_plus/core/services/user_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import '../../core/widgets/custom_button.dart';
 import 'forgot_password_screen.dart';
+import 'sign_up_screen.dart';
+import '../home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,30 +19,135 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  void _handleLogin() {
+  void _handleLogin() async {
     final localizations = AppLocalizations.of(context);
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.translate('please_fill_all_fields'))),
+        SnackBar(
+          content: Text(localizations.translate('please_fill_all_fields')),
+          backgroundColor: AppColors.darkRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
       );
       return;
     }
 
-    DialogHelper.showAnimatedSuccessDialog(
-      context: context,
-      title: localizations.translate('login_successful'),
-      message: localizations.translate('welcome'),
-      buttonText: localizations.translate('go_to_home'),
-      onPressed: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = AuthService();
+      final response = await authService.login(
+        _emailController.text,
+        _passwordController.text,
+        {
+          'login_success': localizations.translate('login_success'),
+          'login_failed': localizations.translate('login_failed'),
+          'connection_error': localizations.translate('connection_error'),
+        },
+      );
+
+      // Lưu token vào SharedPreferences
+      final userManager = UserManager();
+      await userManager.saveUserToken(response['accessToken']);
+
+      // Hiển thị thông báo đăng nhập thành công
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.translate('login_successful')),
+          backgroundColor: AppColors.lowerRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-        );
-      },
-    );
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Chuyển đến HomeScreen
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
+          );
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đăng nhập thất bại: $e'),
+          backgroundColor: AppColors.darkRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _handleGoogleLogin() async {
+    final localizations = AppLocalizations.of(context);
+    setState(() => _isLoading = true);
+    try {
+      final authService = AuthService();
+      final response = await authService.loginWithGoogle({
+        'login_success': localizations.translate('login_success'),
+        'login_failed': localizations.translate('login_failed'),
+        'connection_error': localizations.translate('connection_error'),
+      });
+
+      final userManager = UserManager();
+      await userManager.saveUserToken(response['accessToken']);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.translate('login_successful')),
+          backgroundColor: AppColors.lowerRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Đăng nhập Google thất bại: $e'),
+          backgroundColor: AppColors.darkRed,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -129,9 +235,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    text: localizations.translate('login'),
+                    text: _isLoading
+                        ? 'Đang đăng nhập...'
+                        : localizations.translate('login'),
                     color: AppColors.primaryRed,
-                    onPressed: _handleLogin,
+                    onPressed: _isLoading ? null : () => _handleLogin(),
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     borderRadius: 10,
                   ),
@@ -174,9 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
                 OutlinedButton.icon(
-                  onPressed: () {
-                    print('Sign in with Google pressed');
-                  },
+                  onPressed: _isLoading ? null : _handleGoogleLogin,
                   icon: Image.asset(
                     'assets/icons/google_logo.png',
                     width: 24,

@@ -1,7 +1,9 @@
-import 'package:blood_plus/core/localization.dart';
+import 'package:blood_plus/core/constants/app_colors.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
+import 'package:blood_plus/core/services/user_manager.dart';
+import 'package:blood_plus/features/home/home_screen.dart';
+import 'package:blood_plus/features/onboarding/started_screen.dart';
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
-import '../onboarding/started_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -56,18 +58,31 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _controller.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-            const StartedScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 500),
-          ),
-        );
+    _controller.addStatusListener((status) async {
+      if (status == AnimationStatus.completed && mounted) {
+        print('Splash animation completed, checking token...');
+        final userManager = UserManager();
+        final token = await userManager.getUserToken();
+        print('Token in SplashScreen: $token');
+
+        Widget nextScreen;
+        if (token == null || token.isEmpty) {
+          nextScreen = const StartedScreen();
+        } else {
+          nextScreen = const HomeScreen();
+        }
+
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+          );
+        }
       }
     });
 
