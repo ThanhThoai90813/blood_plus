@@ -10,6 +10,7 @@ import '../auth/login_screen.dart';
 import '../home/home_screen.dart';
 import '../../core/utils/dialog_helper.dart';
 import '../../core/services/user_manager.dart';
+import '../../core/models/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -21,11 +22,13 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isQrEnlarged = false;
   double _originalBrightness = 0.5;
+  UserModel? _user;
 
   @override
   void initState() {
     super.initState();
     _storeCurrentBrightness();
+    _loadUserInfo();
   }
 
   Future<void> _storeCurrentBrightness() async {
@@ -36,6 +39,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     } catch (e) {
       debugPrint('Error getting current brightness: $e');
+    }
+  }
+
+  Future<void> _loadUserInfo() async {
+    final userManager = UserManager();
+    final userId = await userManager.getUserId();
+    if (userId != null) {
+      final user = await userManager.getUserInfo(userId);
+      if (user != null) {
+        setState(() {
+          _user = user;
+        });
+      }
     }
   }
 
@@ -53,6 +69,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       debugPrint('Error restoring brightness: $e');
     }
+  }
+
+  // Hàm tạo chuỗi dữ liệu QR từ thông tin người dùng
+  String _generateQrData(UserModel? user) {
+    if (user == null) {
+      return 'No user data available';
+    }
+
+    // Tạo chuỗi dữ liệu với các thông tin từ UserModel
+    final qrData = '''
+ud: ${user.id ?? 'N/A'}
+Name: ${user.name ?? 'N/A'}
+Address: ${user.address ?? 'N/A'}
+Date of Birth: ${user.dateOfBirth?.toString().split(' ')[0] ?? 'N/A'}
+Passport/ID: ${user.passportNumber ?? 'N/A'}
+Donation Count: ${user.donationCount?.toString() ?? '0'}
+Image URL: ${user.userImage ?? 'N/A'}
+Email: ${user.email ?? 'N/A'}
+Job: ${user.job ?? 'N/A'}
+BloodType: ${user.bloodType ?? 'N/A'}
+'''.trim();
+
+    return qrData;
   }
 
   @override
@@ -113,25 +152,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage('assets/images/profile.jpg'),
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey, width: 2),
+                        ),
+                        child: ClipOval(
+                          child: FadeInImage(
+                            placeholder: const AssetImage('assets/images/profile.jpg'),
+                            image: _user?.userImage != null && _user!.userImage!.startsWith('http')
+                                ? NetworkImage(_user!.userImage!)
+                                : const AssetImage('assets/images/profile.jpg') as ImageProvider,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                            imageErrorBuilder: (context, error, stackTrace) {
+                              debugPrint('Image load error for ${_user?.userImage}: $error');
+                              return Image.asset(
+                                'assets/images/profile.jpg',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Duong Thanh Thoai',
-                        style: TextStyle(
+                      Text(
+                        _user?.name ?? 'Loading...',
+                        style: const TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const Text(
-                        'P13, Binh Thanh, Ho Chi Minh',
-                        style: TextStyle(
+                      Text(
+                        _user?.address ?? 'Loading...',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -225,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                     child: QrImageView(
-                      data: 'Duong Thanh Thoai\n05/02/2003\n083203007395',
+                      data: _generateQrData(_user),
                       size: 300,
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
@@ -302,7 +368,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           Navigator.of(context).pop();
 
-          if (mounted) {
+          if (context.mounted) {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -324,7 +390,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           }
         } catch (e) {
-          if (mounted) {
+          if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Đăng xuất thất bại: $e'),

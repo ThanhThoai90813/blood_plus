@@ -1,9 +1,12 @@
 import 'package:blood_plus/core/language_helper/localization.dart';
+import 'package:blood_plus/core/services/user_manager.dart';
 import 'package:blood_plus/core/utils/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/widgets/custom_button.dart';
+import 'package:blood_plus/core/models/user_model.dart';
+import 'package:blood_plus/core/services/user_service.dart';
 
 class AccountInfoScreen extends StatefulWidget {
   const AccountInfoScreen({Key? key}) : super(key: key);
@@ -15,17 +18,50 @@ class AccountInfoScreen extends StatefulWidget {
 class _AccountInfoScreenState extends State<AccountInfoScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isBloodCardHovered = false;
+  final UserManager _userManager = UserManager();
+  final UserService _userService = UserService();
 
-  String _fullName = 'Dương Thành Thoại';
-  String _address = 'Mirpur 10, Dhaka';
-  String _bloodType = 'A+';
-  String _image = 'assets/images/profile.jpg'; // Thay bằng asset hoa hướng dương nếu có
+  TextEditingController emailController = TextEditingController();
+  TextEditingController dobController = TextEditingController();
 
-  TextEditingController phoneController = TextEditingController(text: '0337252208');
-  TextEditingController emailController = TextEditingController(text: 'thanhthoai13@gmail.com');
-  TextEditingController roleController = TextEditingController(text: 'Donor');
-  TextEditingController dobController = TextEditingController(text: '05/02/2003');
-  TextEditingController organizationController = TextEditingController(text: 'Đại học FPT HCM');
+  Future<UserModel?> _loadUserInfo() async {
+    final userId = await _userManager.getUserId();
+    if (userId == null) {
+      print('Error: userId is null');
+      return null;
+    }
+    final token = await _userManager.getUserToken();
+    if (token == null) {
+      print('Error: token is null');
+      return null;
+    }
+    try {
+      final cachedUser = await _userManager.getUserInfo(userId);
+      if (cachedUser != null) {
+        emailController.text = cachedUser.email;
+        dobController.text = cachedUser.dateOfBirth?.toString().split(' ')[0] ?? '';
+        print('Loaded user from SharedPreferences: ${cachedUser.toJson()}');
+        return cachedUser;
+      }
+      print('No cached user, fetching from API');
+      final user = await _userService.getUserInfo(userId, token);
+      await _userManager.saveUserInfo(userId, user);
+      emailController.text = user.email;
+      dobController.text = user.dateOfBirth?.toString().split(' ')[0] ?? '';
+      print('Loaded user from API: ${user.toJson()}');
+      return user;
+    } catch (e) {
+      print('Error loading user info: $e');
+      return null;
+    }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    dobController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,126 +73,177 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
         elevation: 0,
         title: Text(
           localizations.translate('update_info'),
-          style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20),
+          style: GoogleFonts.poppins(
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildUserProfileCard(),
-            const SizedBox(height: 30),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _sectionTitle(localizations.translate('personal_info')),
-                      const SizedBox(height: 16),
-                      _buildInputField(localizations.translate('phone_number'), phoneController, Icons.phone),
-                      _buildInputField(localizations.translate('email'), emailController, Icons.email),
-                      _buildInputField(localizations.translate('date_of_birth'), dobController, Icons.cake),
-                      _buildInputField(localizations.translate('role'), roleController, Icons.verified_user),
-                      const SizedBox(height: 24),
-                      _sectionTitle(localizations.translate('organization_info')),
-                      const SizedBox(height: 16),
-                      _buildInputField(localizations.translate('organization'), organizationController, Icons.business),
-                    ],
+      body: FutureBuilder<UserModel?>(
+        future: _loadUserInfo(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Lỗi: ${snapshot.error}'));
+          } else if (snapshot.hasData && snapshot.data != null) {
+            final user = snapshot.data!;
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildUserProfileCard(
+                    name: user.name,
+                    address: user.address ?? 'Không có địa chỉ',
+                    bloodType: user.bloodType ?? 'Không xác định',
+                    userImage: user.userImage ?? 'assets/images/profile.jpg',
                   ),
-                ),
+                  const SizedBox(height: 30),
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _sectionTitle(localizations.translate('personal_info')),
+                            const SizedBox(height: 16),
+                            _buildInputField(localizations.translate('email'),
+                                emailController, Icons.email),
+                            _buildInputField(localizations.translate('date_of_birth'),
+                                dobController, Icons.cake),
+                            _buildReadOnlyField(localizations.translate('job'),
+                                user.job ?? 'Không có nghề nghiệp', Icons.work),
+                            _buildReadOnlyField(
+                                localizations.translate('donation_count'),
+                                user.donationCount.toString(),
+                                Icons.favorite),
+                            _buildReadOnlyField(
+                                localizations.translate('passport_number'),
+                                user.passportNumber ?? 'Không có số hộ chiếu',
+                                Icons.book),
+                            _buildReadOnlyField(
+                                localizations.translate('latitude'),
+                                user.latitude?.toString() ?? 'N/A',
+                                Icons.location_on),
+                            _buildReadOnlyField(
+                                localizations.translate('longitude'),
+                                user.longitude?.toString() ?? 'N/A',
+                                Icons.location_on),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  Center(
+                    child: CustomButton(
+                      text: localizations.translate('save_info'),
+                      color: AppColors.primaryRed,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          DialogHelper.showAnimatedSuccessDialog(
+                            context: context,
+                            title: localizations.translate('sign_up_successful'),
+                            message: localizations.translate('info_saved_successfully'),
+                            buttonText: localizations.translate('close'),
+                          );
+                        }
+                      },
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                      borderRadius: 12,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 40),
-            Center(
-              child: CustomButton(
-                text: localizations.translate('save_info'),
-                color: AppColors.primaryRed,
-                textColor: Colors.white,
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    DialogHelper.showAnimatedSuccessDialog(
-                      context: context,
-                      title: localizations.translate('sign_up_successful'),
-                      message: localizations.translate('info_saved_successfully'),
-                      buttonText: localizations.translate('close'),
-                    );
-                  }
-                },
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
-                borderRadius: 12,
-              ),
-            ),
-          ],
-        ),
+            );
+          } else {
+            return const Center(child: Text('Không tìm thấy thông tin người dùng'));
+          }
+        },
       ),
     );
   }
 
-  Widget _buildUserProfileCard() {
+  Widget _buildUserProfileCard({
+    required String name,
+    required String address,
+    required String bloodType,
+    required String userImage,
+  }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: double.infinity, // Làm card bao trọn chiều ngang màn hình
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15), // Tăng padding cho thoáng
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.red[300]!, Colors.yellow[50]!], // Gradient xanh lam
+          colors: [Colors.red[300]!, Colors.yellow[50]!],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue[800]!.withOpacity(0.3), // Shadow xanh đậm
+            color: Colors.blue[800]!.withOpacity(0.3),
             spreadRadius: 3,
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
         ],
-        borderRadius: BorderRadius.circular(30), // Bo góc lớn hơn
+        borderRadius: BorderRadius.circular(30),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center, // Căn giữa các phần tử bên trong
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.red[200]!, Colors.red[400]!], // Gradient tím
+                colors: [Colors.red[200]!, Colors.red[400]!],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(80),
             ),
-            child: CircleAvatar(
-              radius: 65, // Tăng kích thước avatar
-              backgroundImage: AssetImage(_image),
-              backgroundColor: Colors.red[100],
+            child: ClipOval(
+              child: FadeInImage(
+                placeholder: const AssetImage('assets/images/profile.jpg'),
+                image: userImage.startsWith('http') || userImage.startsWith('https')
+                    ? NetworkImage(userImage)
+                    : const AssetImage('assets/images/profile.jpg') as ImageProvider,
+                width: 130, // Đảm bảo kích thước phù hợp với CircleAvatar
+                height: 130,
+                fit: BoxFit.cover,
+                imageErrorBuilder: (context, error, stackTrace) {
+                  print('Image load error for $userImage: $error');
+                  return Image.asset('assets/images/profile.jpg', width: 130, height: 130, fit: BoxFit.cover);
+                },
+              ),
             ),
           ),
-          const SizedBox(height: 20), // Tăng khoảng cách cho thoáng
+          const SizedBox(height: 20),
           Text(
-            _fullName,
-            style: GoogleFonts.poppins(fontSize: 27, fontWeight: FontWeight.bold, color: Colors.black38), // Màu xanh lá
-            textAlign: TextAlign.center, // Căn giữa
+            name,
+            style: GoogleFonts.poppins(
+                fontSize: 27, fontWeight: FontWeight.bold, color: Colors.black38),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            _address,
-            style: GoogleFonts.poppins(fontSize: 19, color: Colors.redAccent[600]), // Xám đậm hơn
-            textAlign: TextAlign.center, // Căn giữa
+            address,
+            style: GoogleFonts.poppins(fontSize: 19, color: Colors.redAccent[600]),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
           GestureDetector(
-            onTap: () => _showBloodGroupDialog(context),
+            onTap: () => _showBloodGroupDialog(context, bloodType),
             onTapDown: (_) => setState(() => _isBloodCardHovered = true),
             onTapUp: (_) => setState(() => _isBloodCardHovered = false),
             onTapCancel: () => setState(() => _isBloodCardHovered = false),
@@ -166,13 +253,13 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: _isBloodCardHovered
-                      ? [Colors.red[700]!, Colors.red[400]!] // Gradient tím khi hover
-                      : [Colors.red[300]!, Colors.red[100]!], // Gradient tím nhạt
+                      ? [Colors.red[700]!, Colors.red[400]!]
+                      : [Colors.red[300]!, Colors.red[100]!],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                border: Border.all(color: Colors.white, width: 2), // Viền trắng
-                borderRadius: BorderRadius.circular(30), // Bo góc lớn hơn
+                border: Border.all(color: Colors.white, width: 2),
+                borderRadius: BorderRadius.circular(30),
                 boxShadow: _isBloodCardHovered
                     ? [
                   BoxShadow(
@@ -186,10 +273,12 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.bloodtype, color: _isBloodCardHovered ? Colors.white : Colors.red[700], size: 35),
+                  Icon(Icons.bloodtype,
+                      color: _isBloodCardHovered ? Colors.white : Colors.red[700],
+                      size: 35),
                   const SizedBox(width: 8),
                   Text(
-                    _bloodType,
+                    bloodType,
                     style: GoogleFonts.poppins(
                       color: _isBloodCardHovered ? Colors.white : Colors.white,
                       fontWeight: FontWeight.w700,
@@ -208,17 +297,20 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
   Widget _sectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.primaryRed),
+      style: GoogleFonts.poppins(
+          fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.primaryRed),
     );
   }
 
-  Widget _buildInputField(String label, TextEditingController controller, IconData icon) {
+  Widget _buildInputField(
+      String label, TextEditingController controller, IconData icon) {
     final localizations = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
         controller: controller,
-        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+        style: GoogleFonts.poppins(
+            fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: AppColors.primaryRed, size: 20),
           labelText: label,
@@ -237,7 +329,9 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return localizations.translate('please_enter').replaceAll('{field}', label.toLowerCase());
+            return localizations
+                .translate('please_enter')
+                .replaceAll('{field}', label.toLowerCase());
           }
           return null;
         },
@@ -245,7 +339,31 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
     );
   }
 
-  void _showBloodGroupDialog(BuildContext context) {
+  Widget _buildReadOnlyField(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: TextFormField(
+        initialValue: value,
+        readOnly: true,
+        style: GoogleFonts.poppins(
+            fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: AppColors.primaryRed, size: 20),
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600]),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey[300]!, width: 1.5),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          filled: true,
+          fillColor: Colors.grey[50],
+          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+        ),
+      ),
+    );
+  }
+
+  void _showBloodGroupDialog(BuildContext context, String currentBloodType) {
     final localizations = AppLocalizations.of(context);
     showDialog(
       context: context,
@@ -261,7 +379,10 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
               children: [
                 Text(
                   localizations.translate('choose_the_blood_group'),
-                  style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.primaryRed),
+                  style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primaryRed),
                 ),
                 const SizedBox(height: 20),
                 Wrap(
@@ -269,14 +390,14 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
                   runSpacing: 12,
                   alignment: WrapAlignment.center,
                   children: [
-                    _buildBloodOption('A+'),
-                    _buildBloodOption('A-'),
-                    _buildBloodOption('B+'),
-                    _buildBloodOption('B-'),
-                    _buildBloodOption('AB+'),
-                    _buildBloodOption('AB-'),
-                    _buildBloodOption('O+'),
-                    _buildBloodOption('O-'),
+                    _buildBloodOption('A+', currentBloodType),
+                    _buildBloodOption('A-', currentBloodType),
+                    _buildBloodOption('B+', currentBloodType),
+                    _buildBloodOption('B-', currentBloodType),
+                    _buildBloodOption('AB+', currentBloodType),
+                    _buildBloodOption('AB-', currentBloodType),
+                    _buildBloodOption('O+', currentBloodType),
+                    _buildBloodOption('O-', currentBloodType),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -296,12 +417,12 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
     );
   }
 
-  Widget _buildBloodOption(String bloodType) {
-    bool isSelected = _bloodType == bloodType;
+  Widget _buildBloodOption(String bloodType, String currentBloodType) {
+    bool isSelected = currentBloodType == bloodType;
     return GestureDetector(
       onTap: () {
         setState(() {
-          _bloodType = bloodType;
+          // Cập nhật bloodType nếu cần lưu lại (có thể gửi lên API sau)
         });
         Navigator.pop(context);
       },

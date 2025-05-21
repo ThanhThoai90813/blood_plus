@@ -12,6 +12,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/custom_button_navBar.dart';
 import 'dart:math' as math;
+import '../../core/models/user_model.dart';
+import '../../core/services/user_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -91,7 +93,39 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _HeaderSection extends StatelessWidget {
+class _HeaderSection extends StatefulWidget {
+  @override
+  _HeaderSectionState createState() => _HeaderSectionState();
+}
+
+class _HeaderSectionState extends State<_HeaderSection> {
+  final UserManager _userManager = UserManager();
+  UserModel? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    final userId = await _userManager.getUserId();
+    if (userId != null) {
+      final user = await _userManager.getUserInfo(userId);
+      if (user != null) {
+        setState(() {
+          _user = user;
+        });
+      }
+    }
+  }
+
+  String _truncateAddress(String? address, int maxLength) {
+    if (address == null) return 'Loading...';
+    if (address.length <= maxLength) return address;
+    return '${address.substring(0, maxLength - 3)}...';
+  }
+
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
@@ -108,28 +142,54 @@ class _HeaderSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                radius: 30,
-                backgroundImage: AssetImage('assets/images/profile.jpg'),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: ClipOval(
+                  child: FadeInImage(
+                    placeholder: const AssetImage('assets/images/profile.jpg'),
+                    image: _user?.userImage != null && (_user!.userImage!.startsWith('http') || _user!.userImage!.startsWith('https'))
+                        ? NetworkImage(_user!.userImage!)
+                        : const AssetImage('assets/images/profile.jpg') as ImageProvider,
+                    width: 74,
+                    height: 74,
+                    fit: BoxFit.cover,
+                    imageErrorBuilder: (context, error, stackTrace) {
+                      debugPrint('Image load error for ${_user?.userImage}: $error');
+                      return Image.asset(
+                        'assets/images/profile.jpg',
+                        width: 70,
+                        height: 70,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
+                ),
               ),
               const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Duong Thanh Thoai',
+                    _user?.name ?? 'Loading...',
                     style: GoogleFonts.poppins(
-                      fontSize: 22,
+                      fontSize: 22 * 1.2, // Increase font size by 30%
                       fontWeight: FontWeight.w600,
                       color: AppColors.white,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    'P13, Binh Thanh, HCM',
+                    _truncateAddress(_user?.address, 30),
                     style: GoogleFonts.poppins(
+                      fontSize: 13 * 1.1, // Increase font size by 30%
                       color: Colors.white70,
-                      fontSize: 13,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -144,7 +204,7 @@ class _HeaderSection extends StatelessWidget {
               Expanded(
                 child: _CampaignCard(
                   title: localizations.translate('donation_times'),
-                  subtitle: '15',
+                  subtitle: (_user?.donationCount ?? 0).toString(),
                   image: 'assets/images/blood.png',
                   color: Colors.orange,
                 ),
@@ -250,7 +310,6 @@ class _ProgressCircleState extends State<_ProgressCircle> with SingleTickerProvi
             Stack(
               alignment: Alignment.center,
               children: [
-                // Gradient background circle
                 Container(
                   width: 80,
                   height: 80,
@@ -281,7 +340,6 @@ class _ProgressCircleState extends State<_ProgressCircle> with SingleTickerProvi
                     ],
                   ),
                 ),
-                // Progress circle
                 SizedBox(
                   width: 66,
                   height: 66,
@@ -297,7 +355,6 @@ class _ProgressCircleState extends State<_ProgressCircle> with SingleTickerProvi
                         : localizations.translate('days_left').replaceAll('{days}', widget.daysLeft.toString()),
                   ),
                 ),
-                // Center content
                 canDonate
                     ? Column(
                   mainAxisSize: MainAxisSize.min,
