@@ -26,19 +26,19 @@ class BlogResponse {
     final message = json['message'] as Map<String, dynamic>? ?? {};
     List<dynamic>? itemsData;
 
-    print('message: $message');
+    // print('message: $message');
 
     if (message['items'] is List) {
       itemsData = message['items'] as List<dynamic>?;
-      print('items is List: $itemsData');
+      // print('items is List: $itemsData');
     } else if (message['items'] is Map) {
       final itemsMap = message['items'] as Map<String, dynamic>? ?? {};
       itemsData = itemsMap[r'$values'] as List<dynamic>?;
-      print('items is Map, key \$values: $itemsData');
+      // print('items is Map, key \$values: $itemsData');
     }
 
     final itemsList = itemsData?.map((item) => BlogModel.fromJson(item as Map<String, dynamic>)).toList() ?? [];
-    print('itemsList: $itemsList');
+    // print('itemsList: $itemsList');
 
     return BlogResponse(
       items: itemsList,

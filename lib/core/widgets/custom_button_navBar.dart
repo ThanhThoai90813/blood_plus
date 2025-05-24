@@ -1,4 +1,5 @@
 import 'package:blood_plus/core/language_helper/localization.dart';
+import 'package:blood_plus/presentation/features/schedule/donation_event_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 
@@ -15,9 +16,9 @@ class CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    return SafeArea( // Sử dụng SafeArea để tránh bị che
+    return SafeArea(
       child: Container(
-        height:61,
+        height: 61,
         padding: EdgeInsets.zero,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -69,7 +70,16 @@ class CustomBottomNavBar extends StatelessWidget {
             ),
             Positioned(
               child: GestureDetector(
-                onTap: () => onItemTapped(2),
+                onTap: () {
+                  onItemTapped(2); // Cập nhật selectedIndex
+                  // Điều hướng đến màn hình BloodDonationScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const DonationEventScreen(),
+                    ),
+                  );
+                },
                 child: Container(
                   width: 60,
                   height: 60,

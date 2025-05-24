@@ -38,7 +38,7 @@ class BlogService {
       );
 
       if (response.statusCode == 200) {
-        print('Response body: ${response.body}');
+        // print('Response body: ${response.body}');
         return BlogResponse.fromJson(jsonDecode(response.body));
       } else {
         throw Exception('Lấy danh sách blog thất bại: ${response.statusCode} - ${response.body}');

@@ -1,6 +1,7 @@
 import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:blood_plus/data/models/blog_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BlogDetailScreen extends StatelessWidget {
   final BlogModel blog;
@@ -25,7 +26,14 @@ class BlogDetailScreen extends StatelessWidget {
               blog.title,
               style: const TextStyle(fontSize: 29, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 5),
+
+            if (blog.createdTime != null)
+              Text(
+                _formatDate(blog.createdTime!),
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              ),
+            const SizedBox(height: 8),
 
             // Xen kẽ ảnh và đoạn văn
             for (int i = 0; i < imageList.length; i++) ...[
@@ -82,4 +90,9 @@ class BlogDetailScreen extends StatelessWidget {
       ),
     );
   }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('dd/MM/yyyy').format(date);
+  }
+
 }

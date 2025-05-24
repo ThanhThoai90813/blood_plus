@@ -9,6 +9,7 @@ class BlogModel {
   final String? image2;
   final String? image3;
   final String? image4;
+  final DateTime? createdTime;
 
   BlogModel({
     required this.id,
@@ -21,6 +22,7 @@ class BlogModel {
     this.image2,
     this.image3,
     this.image4,
+    this.createdTime
   });
 
   factory BlogModel.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,9 @@ class BlogModel {
       image2: json['image2']?.toString(),
       image3: json['image3']?.toString(),
       image4: json['image4']?.toString(),
+      createdTime: json['createdTime'] != null
+        ? DateTime.tryParse(json['createdTime'].toString())
+          : null, //parse ngày tạo
     );
   }
 
@@ -50,6 +55,7 @@ class BlogModel {
       'image2': image2,
       'image3': image3,
       'image4': image4,
+      'createdTime': createdTime?.toIso8601String(), //serialize lại
     };
   }
 }

@@ -1,13 +1,16 @@
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/widgets/dialog_helper.dart';
 import 'package:blood_plus/core/widgets/custom_button_navBar.dart';
+import 'package:blood_plus/core/widgets/dialog_helper.dart';
 import 'package:blood_plus/data/manager/user_manager.dart';
 import 'package:blood_plus/data/models/user_model.dart';
+import 'package:blood_plus/data/services/blog_service.dart';
+import 'package:blood_plus/data/models/blog_model.dart';
+import 'package:blood_plus/presentation/features/blog/blog_detail_screen.dart';
 import 'package:blood_plus/presentation/features/blog/blog_screen.dart';
 import 'package:blood_plus/presentation/features/home/expert_advice_screen.dart';
 import 'package:blood_plus/presentation/features/home/other_information_screen.dart';
-import 'package:blood_plus/presentation/features/schedule/schedule_donation_screen.dart';
+import 'package:blood_plus/presentation/features/schedule/donation_event_screen.dart';
 import 'package:blood_plus/presentation/features/user/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
@@ -16,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
 
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -34,24 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
     {'icon': Icons.request_page, 'title': 'blog_list', 'color': Colors.blue},
     {'icon': Icons.local_hospital, 'title': 'expert_advice', 'color': Colors.orange},
     {'icon': Icons.inbox, 'title': 'information', 'color': Colors.purple},
-  ];
-
-  final List<Map<String, String>> newsItems = [
-    {
-      'image': 'assets/images/news1.jpg',
-      'title': 'Hàng trăm “giọt viên hồng” được trao tặng tại “Ngày Chủ Nhật Đỏ”…',
-      'date': '01/4/2025',
-    },
-    {
-      'image': 'assets/images/news2.jpg',
-      'title': 'Người dân phường Hòa chia sẻ giọt máu hồng cứu người',
-      'date': '30/3/2025',
-    },
-    {
-      'image': 'assets/images/news1.jpg',
-      'title': 'Chiến dịch hiến máu toàn quốc thu hút hàng nghìn người',
-      'date': '28/3/2025',
-    },
   ];
 
   void _onItemTapped(int index) {
@@ -80,8 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.zero,
             children: [
               _HeaderSection(),
-              const SizedBox(height: 15),
-              _NewsCarousel(newsItems: newsItems),
+              const SizedBox(height: 2),
+              _NewsCarousel(),
               _FeatureGrid(features: features),
             ],
           ),
@@ -177,7 +163,7 @@ class _HeaderSectionState extends State<_HeaderSection> {
                   Text(
                     _user?.name ?? 'Loading...',
                     style: GoogleFonts.poppins(
-                      fontSize: 22 * 1.2, // Increase font size by 30%
+                      fontSize: 22 * 1.2,
                       fontWeight: FontWeight.w600,
                       color: AppColors.white,
                     ),
@@ -187,7 +173,7 @@ class _HeaderSectionState extends State<_HeaderSection> {
                   Text(
                     _truncateAddress(_user?.address, 30),
                     style: GoogleFonts.poppins(
-                      fontSize: 13 * 1.1, // Increase font size by 30%
+                      fontSize: 13 * 1.1,
                       color: Colors.white70,
                     ),
                     maxLines: 1,
@@ -328,9 +314,9 @@ class _ProgressCircleState extends State<_ProgressCircle> with SingleTickerProvi
                     boxShadow: canDonate
                         ? [
                       BoxShadow(
-                        color: Colors.green.withOpacity(_glowAnimation.value * 0.4),
-                        blurRadius: 12,
-                        spreadRadius: 3,
+                          color: Colors.green.withOpacity(_glowAnimation.value * 0.4),
+                          blurRadius: 12,
+                          spreadRadius:1
                       ),
                     ]
                         : [
@@ -481,17 +467,51 @@ class _CampaignCard extends StatelessWidget {
 }
 
 class _NewsCarousel extends StatefulWidget {
-  final List<Map<String, String>> newsItems;
-
-  const _NewsCarousel({required this.newsItems});
+  const _NewsCarousel();
 
   @override
   _NewsCarouselState createState() => _NewsCarouselState();
 }
 
 class _NewsCarouselState extends State<_NewsCarousel> {
+  final BlogService _blogService = BlogService();
+  List<BlogModel> blogs = [];
+  bool isLoading = false;
+  String? errorMessage;
   int _currentIndex = 0;
   final CarouselController _controller = CarouselController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLatestBlogs();
+  }
+
+  Future<void> _fetchLatestBlogs() async {
+    if (isLoading) return;
+
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final response = await _blogService.getBlogs(
+        pageNumber: 1,
+        pageSize: 3,
+      );
+
+      setState(() {
+        blogs = response.items;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -501,18 +521,47 @@ class _NewsCarouselState extends State<_NewsCarousel> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 27),
-          child: Text(
-            localizations.translate('news'),
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                localizations.translate('latest_blogs'),
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BlogScreen(),
+                    ),
+                  );
+                },
+                child: Text(
+                  localizations.translate('view_all'),
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 16),
-        CarouselSlider(
+        const SizedBox(height: 12),
+        isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : errorMessage != null
+            ? Center(child: Text(localizations.translate('error_loading_blogs')))
+            : blogs.isEmpty
+            ? Center(child: Text(localizations.translate('no_blogs')))
+            : CarouselSlider(
           options: CarouselOptions(
             height: 260,
             autoPlay: true,
@@ -524,61 +573,81 @@ class _NewsCarouselState extends State<_NewsCarousel> {
               });
             },
           ),
-          items: widget.newsItems.map((item) {
+          items: blogs.map((blog) {
             return Builder(
-              builder: (_) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.transparent,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                      child: Image.asset(
-                        item['image']!,
-                        height: 120,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+              builder: (_) => GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlogDetailScreen(blog: blog),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 48,
-                              child: AutoSizeText(
-                                item['title']!,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.4,
-                                  color: Colors.black87,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                minFontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              item['date']!,
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.transparent,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                        child: blog.image1 != null
+                            ? Image.network(
+                          blog.image1!,
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Image.asset(
+                            'assets/images/news1.jpg',
+                            height: 120,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                            : Image.asset(
+                          'assets/images/news1.jpg',
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                    ),
-                  ],
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 48,
+                                child: AutoSizeText(
+                                  blog.title,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.4,
+                                    color: Colors.black87,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  minFontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              if (blog.createdTime != null)
+                                Text(
+                                  _formatDate(blog.createdTime!),
+                                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -586,7 +655,7 @@ class _NewsCarouselState extends State<_NewsCarousel> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: widget.newsItems.asMap().entries.map((entry) {
+          children: blogs.asMap().entries.map((entry) {
             int index = entry.key;
             return GestureDetector(
               child: Container(
@@ -606,6 +675,10 @@ class _NewsCarouselState extends State<_NewsCarousel> {
       ],
     );
   }
+}
+
+String _formatDate(DateTime date) {
+  return DateFormat('dd/MM/yyyy').format(date);
 }
 
 class _FeatureGrid extends StatelessWidget {
@@ -651,12 +724,12 @@ class _FeatureGrid extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ScheduleDonationScreen(),
+                    builder: (context) => const DonationEventScreen(),
                   ),
                 );
               } else if (feature['title'] == 'blog_list') {
                 Navigator.push(
-                    context,
+                  context,
                   MaterialPageRoute(
                     builder: (context) => const BlogScreen(),
                   ),

@@ -3,6 +3,7 @@ import 'package:blood_plus/data/models/blog_model.dart';
 import 'package:blood_plus/data/services/blog_service.dart';
 import 'package:blood_plus/presentation/features/blog/blog_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BlogScreen extends StatefulWidget {
   const BlogScreen({super.key});
@@ -24,6 +25,10 @@ class _BlogScreenState extends State<BlogScreen> {
   void initState() {
     super.initState();
     fetchBlogs();
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('dd/MM/yyyy').format(date);
   }
 
   Future<void> fetchBlogs({bool loadMore = false}) async {
@@ -131,6 +136,12 @@ class _BlogScreenState extends State<BlogScreen> {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 18),
                           ),
+                          const SizedBox(height: 8),
+                          if (blog.createdTime != null)
+                            Text(
+                                  _formatDate(blog.createdTime!),
+                              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                            ),
                         ],
                       ),
                     ),
