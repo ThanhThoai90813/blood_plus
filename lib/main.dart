@@ -1,5 +1,5 @@
 import 'package:blood_plus/core/language_helper/language_manager.dart';
-import 'package:blood_plus/features/onboarding/splash/splash_screen.dart';
+import 'package:blood_plus/presentation/features/onboarding/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';

@@ -1,5 +1,6 @@
-import 'package:blood_plus/features/auth/sign_up_screen.dart';
-import 'package:blood_plus/features/auth/login_screen.dart';
+
+import 'package:blood_plus/presentation/features/auth/login_screen.dart';
+import 'package:blood_plus/presentation/features/auth/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,9 +1,9 @@
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/services/auth_service.dart';
-import 'package:blood_plus/core/services/user_manager.dart';
+import 'package:blood_plus/core/widgets/custom_button.dart';
+import 'package:blood_plus/data/manager/user_manager.dart';
+import 'package:blood_plus/data/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
-import '../../core/widgets/custom_button.dart';
 import 'forgot_password_screen.dart';
 import 'sign_up_screen.dart';
 import '../home/home_screen.dart';

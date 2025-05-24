@@ -1,8 +1,8 @@
 import 'package:blood_plus/core/language_helper/localization.dart';
+import 'package:blood_plus/presentation/features/auth/enter_verification_code_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/widgets/custom_button.dart';
-import 'package:blood_plus/features/auth/enter_verification_code_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);

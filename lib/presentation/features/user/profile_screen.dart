@@ -1,16 +1,16 @@
+import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/features/user/account_infor_screen.dart';
-import 'package:blood_plus/features/user/settings_screen.dart';
+import 'package:blood_plus/core/widgets/dialog_helper.dart';
+import 'package:blood_plus/core/widgets/custom_button_navBar.dart';
+import 'package:blood_plus/data/manager/user_manager.dart';
+import 'package:blood_plus/data/models/user_model.dart';
+import 'package:blood_plus/presentation/features/user/account_infor_screen.dart';
+import 'package:blood_plus/presentation/features/user/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/widgets/custom_button_navBar.dart';
 import '../auth/login_screen.dart';
 import '../home/home_screen.dart';
-import '../../core/utils/dialog_helper.dart';
-import '../../core/services/user_manager.dart';
-import '../../core/models/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -89,6 +89,8 @@ Image URL: ${user.userImage ?? 'N/A'}
 Email: ${user.email ?? 'N/A'}
 Job: ${user.job ?? 'N/A'}
 BloodType: ${user.bloodType ?? 'N/A'}
+Gender:  ${user.gender ?? 'N/A'}
+PhoneNumber:  ${user.phoneNumber ?? 'N/A'}
 '''.trim();
 
     return qrData;

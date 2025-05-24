@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:blood_plus/core/models/user_model.dart';
+import 'package:blood_plus/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 

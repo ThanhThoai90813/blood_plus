@@ -1,0 +1,9 @@
+CustomButton: Nút chuản dùng cho toàn bộ app
+
+CustomBottomNavBar: Thanh điều hướng phía dưới cùng
+
+CustomConfirmationDialog: Hiển thị hộp thoại xác nhận, dùng cho các thao tác quan trọng (xoá, đăng xuất...).
+
+SuccessDialog: Hiển thị một hộp thoại báo thành công (ví dụ: đăng ký thành công, hoàn thành thao tác).
+
+DialogHelper: Hiển thị các dialog với hiệu ứng mượt (Gọi dialog bằng animation).

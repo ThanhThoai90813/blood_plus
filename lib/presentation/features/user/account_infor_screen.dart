@@ -1,12 +1,12 @@
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/services/user_manager.dart';
-import 'package:blood_plus/core/utils/dialog_helper.dart';
+import 'package:blood_plus/core/widgets/dialog_helper.dart';
+import 'package:blood_plus/data/manager/user_manager.dart';
+import 'package:blood_plus/data/models/user_model.dart';
+import 'package:blood_plus/data/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/widgets/custom_button.dart';
-import 'package:blood_plus/core/models/user_model.dart';
-import 'package:blood_plus/core/services/user_service.dart';
 
 class AccountInfoScreen extends StatefulWidget {
   const AccountInfoScreen({Key? key}) : super(key: key);
@@ -23,6 +23,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
 
   TextEditingController emailController = TextEditingController();
   TextEditingController dobController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
 
   Future<UserModel?> _loadUserInfo() async {
     final userId = await _userManager.getUserId();
@@ -40,6 +41,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
       if (cachedUser != null) {
         emailController.text = cachedUser.email;
         dobController.text = cachedUser.dateOfBirth?.toString().split(' ')[0] ?? '';
+        phoneNumberController.text = cachedUser.phoneNumber ?? '';
         print('Loaded user from SharedPreferences: ${cachedUser.toJson()}');
         return cachedUser;
       }
@@ -48,6 +50,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
       await _userManager.saveUserInfo(userId, user);
       emailController.text = user.email;
       dobController.text = user.dateOfBirth?.toString().split(' ')[0] ?? '';
+      phoneNumberController.text = user.phoneNumber ?? '';
       print('Loaded user from API: ${user.toJson()}');
       return user;
     } catch (e) {
@@ -60,6 +63,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
   void dispose() {
     emailController.dispose();
     dobController.dispose();
+    phoneNumberController.dispose();
     super.dispose();
   }
 
@@ -120,6 +124,8 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
                                 emailController, Icons.email),
                             _buildInputField(localizations.translate('date_of_birth'),
                                 dobController, Icons.cake),
+                            _buildInputField(localizations.translate('phone_number'),
+                                phoneNumberController, Icons.phone),
                             _buildReadOnlyField(localizations.translate('job'),
                                 user.job ?? 'Không có nghề nghiệp', Icons.work),
                             _buildReadOnlyField(
@@ -131,13 +137,9 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
                                 user.passportNumber ?? 'Không có số hộ chiếu',
                                 Icons.book),
                             _buildReadOnlyField(
-                                localizations.translate('latitude'),
-                                user.latitude?.toString() ?? 'N/A',
-                                Icons.location_on),
-                            _buildReadOnlyField(
-                                localizations.translate('longitude'),
-                                user.longitude?.toString() ?? 'N/A',
-                                Icons.location_on),
+                                localizations.translate('gender'),
+                                _getGenderString(user.gender, localizations),
+                                Icons.person),
                           ],
                         ),
                       ),
@@ -174,12 +176,27 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
     );
   }
 
+  String _getGenderString(int? gender, AppLocalizations localizations) {
+    if (gender == null) return 'N/A';
+    switch (gender) {
+      case 0:
+        return localizations.translate('male');
+      case 1:
+        return localizations.translate('female');
+      case 2:
+        return localizations.translate('other');
+      default:
+        return 'N/A';
+    }
+  }
+
   Widget _buildUserProfileCard({
     required String name,
     required String address,
     required String bloodType,
     required String userImage,
   }) {
+    // Unchanged, kept for completeness
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       width: double.infinity,
@@ -218,7 +235,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
                 image: userImage.startsWith('http') || userImage.startsWith('https')
                     ? NetworkImage(userImage)
                     : const AssetImage('assets/images/profile.jpg') as ImageProvider,
-                width: 130, // Đảm bảo kích thước phù hợp với CircleAvatar
+                width: 130,
                 height: 130,
                 fit: BoxFit.cover,
                 imageErrorBuilder: (context, error, stackTrace) {
@@ -333,6 +350,11 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
                 .translate('please_enter')
                 .replaceAll('{field}', label.toLowerCase());
           }
+          if (label == localizations.translate('phone_number')) {
+            if (!RegExp(r'^\+?\d{10,15}$').hasMatch(value)) {
+              return localizations.translate('invalid_phone_number');
+            }
+          }
           return null;
         },
       ),
@@ -364,6 +386,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
   }
 
   void _showBloodGroupDialog(BuildContext context, String currentBloodType) {
+    // Unchanged, kept for completeness
     final localizations = AppLocalizations.of(context);
     showDialog(
       context: context,
@@ -418,6 +441,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
   }
 
   Widget _buildBloodOption(String bloodType, String currentBloodType) {
+    // Unchanged, kept for completeness
     bool isSelected = currentBloodType == bloodType;
     return GestureDetector(
       onTap: () {

@@ -1,7 +1,7 @@
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/language_manager.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/utils/dialog_helper.dart';
+import 'package:blood_plus/core/widgets/dialog_helper.dart';
 import 'package:blood_plus/core/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

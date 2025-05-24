@@ -1,8 +1,8 @@
+import 'package:blood_plus/core/constants/app_colors.dart';
+import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/language_helper/localization.dart';
 
 class ExpertAdviceScreen extends StatefulWidget {
   const ExpertAdviceScreen({Key? key}) : super(key: key);
@@ -21,6 +21,17 @@ class _ExpertAdviceScreenState extends State<ExpertAdviceScreen> {
         _TipCard(
           title: 'who_can_donate',
           description: 'who_can_donate_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'who_cant_donate',
+      subtitle: 'who_can_donate_subtitle', // Reusing existing subtitle for consistency
+      icon: Icons.block,
+      children: [
+        _TipCard(
+            title: 'who_cant_donate',
+        description: 'who_cant_donate_desc',
         ),
       ],
     ),
@@ -91,6 +102,160 @@ class _ExpertAdviceScreenState extends State<ExpertAdviceScreen> {
         _TipCard(
           title: 'donation_risks',
           description: 'donation_risks_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'my_blood',
+      subtitle: 'my_blood_subtitle', // Added in JSON if needed
+      icon: Icons.science,
+      children: [
+        _TipCard(
+          title: 'my_blood',
+          description: 'my_blood_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'blood_component',
+      subtitle: 'blood_component_subtitle', // Added in JSON if needed
+      icon: Icons.bloodtype,
+      children: [
+        _TipCard(
+          title: 'blood_component',
+          description: 'blood_component_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'why_people_need_blood',
+      subtitle: 'why_people_need_blood_subtitle', // Added in JSON if needed
+      icon: Icons.medical_services,
+      children: [
+        _TipCard(
+          title: 'why_people_need_blood',
+          description: 'why_people_need_blood_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'current_blood',
+      subtitle: 'current_blood_subtitle', // Added in JSON if needed
+      icon: Icons.bar_chart,
+      children: [
+        _TipCard(
+          title: 'current_blood',
+          description: 'current_blood_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'why_need_id',
+      subtitle: 'why_need_id_subtitle', // Added in JSON if needed
+      icon: Icons.badge,
+      children: [
+        _TipCard(
+          title: 'why_need_id',
+          description: 'why_need_id_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'harmful_to_health',
+      subtitle: 'harmful_to_health_subtitle', // Added in JSON if needed
+      icon: Icons.health_and_safety,
+      children: [
+        _TipCard(
+          title: 'harmful_to_health',
+          description: 'harmful_to_health_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'benefits_for_voluntary',
+      subtitle: 'benefits_for_voluntary_subtitle', // Added in JSON if needed
+      icon: Icons.card_giftcard,
+      children: [
+        _TipCard(
+          title: 'benefits_for_voluntary',
+          description: 'benefits_for_voluntary_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'can_get_infected',
+      subtitle: 'can_get_infected_subtitle', // Added in JSON if needed
+      icon: Icons.shield,
+      children: [
+        _TipCard(
+          title: 'can_get_infected',
+          description: 'can_get_infected_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'prepare',
+      subtitle: 'prepare_subtitle', // Added in JSON if needed
+      icon: Icons.checklist,
+      children: [
+        _TipCard(
+          title: 'prepare',
+          description: 'prepare_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'delayed_blood_donation',
+      subtitle: 'delayed_blood_donation_subtitle', // Added in JSON if needed
+      icon: Icons.schedule,
+      children: [
+        _TipCard(
+          title: 'delayed_blood_donation',
+          description: 'delayed_blood_donation_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'have_covid_19',
+      subtitle: 'have_covid_19_subtitle', // Added in JSON if needed
+      icon: Icons.coronavirus,
+      children: [
+        _TipCard(
+          title: 'have_covid_19',
+          description: 'have_covid_19_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'feeling_unsafe',
+      subtitle: 'feeling_unsafe_subtitle', // Added in JSON if needed
+      icon: Icons.warning_amber,
+      children: [
+        _TipCard(
+          title: 'feeling_unsafe',
+          description: 'feeling_unsafe_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'feeling_unwell',
+      subtitle: 'feeling_unwell_subtitle', // Added in JSON if needed
+      icon: Icons.sick,
+      children: [
+        _TipCard(
+          title: 'feeling_unwell',
+          description: 'feeling_unwell_desc',
+        ),
+      ],
+    ),
+    ExpansionPanelItem(
+      header: 'swelling_or_bruising',
+      subtitle: 'swelling_or_bruising_subtitle', // Added in JSON if needed
+      icon: Icons.healing,
+      children: [
+        _TipCard(
+          title: 'swelling_or_bruising',
+          description: 'swelling_or_bruising_desc',
         ),
       ],
     ),

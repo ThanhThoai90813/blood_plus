@@ -1,19 +1,21 @@
+import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/utils/dialog_helper.dart';
-import 'package:blood_plus/features/home/expert_advice_screen.dart';
-import 'package:blood_plus/features/home/other_information_screen.dart';
-import 'package:blood_plus/features/user/profile_screen.dart';
-import 'package:blood_plus/features/schedule/schedule_donation_screen.dart';
+import 'package:blood_plus/core/widgets/dialog_helper.dart';
+import 'package:blood_plus/core/widgets/custom_button_navBar.dart';
+import 'package:blood_plus/data/manager/user_manager.dart';
+import 'package:blood_plus/data/models/user_model.dart';
+import 'package:blood_plus/presentation/features/blog/blog_screen.dart';
+import 'package:blood_plus/presentation/features/home/expert_advice_screen.dart';
+import 'package:blood_plus/presentation/features/home/other_information_screen.dart';
+import 'package:blood_plus/presentation/features/schedule/schedule_donation_screen.dart';
+import 'package:blood_plus/presentation/features/user/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/widgets/custom_button_navBar.dart';
 import 'dart:math' as math;
-import '../../core/models/user_model.dart';
-import '../../core/services/user_manager.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -29,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     {'icon': Icons.favorite, 'title': 'schedule_donation', 'color': Colors.red},
     {'icon': Icons.emergency, 'title': 'emergency_donation', 'color': Colors.red},
     {'icon': Icons.local_hospital, 'title': 'nearby_hospitals', 'color': Colors.green},
-    {'icon': Icons.request_page, 'title': 'highlighted_events', 'color': Colors.blue},
+    {'icon': Icons.request_page, 'title': 'blog_list', 'color': Colors.blue},
     {'icon': Icons.local_hospital, 'title': 'expert_advice', 'color': Colors.orange},
     {'icon': Icons.inbox, 'title': 'information', 'color': Colors.purple},
   ];
@@ -650,6 +652,13 @@ class _FeatureGrid extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const ScheduleDonationScreen(),
+                  ),
+                );
+              } else if (feature['title'] == 'blog_list') {
+                Navigator.push(
+                    context,
+                  MaterialPageRoute(
+                    builder: (context) => const BlogScreen(),
                   ),
                 );
               }

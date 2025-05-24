@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:blood_plus/core/models/user_model.dart';
-import 'package:blood_plus/core/services/user_manager.dart';
-import 'package:blood_plus/core/services/user_service.dart';
+
+import 'package:blood_plus/data/manager/user_manager.dart';
+import 'package:blood_plus/data/services/user_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';

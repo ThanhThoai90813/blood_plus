@@ -11,6 +11,8 @@ class UserModel {
   final String? passportNumber;
   final double? latitude;
   final double? longitude;
+  final int? gender;
+  final String? phoneNumber;
 
   UserModel({
     required this.id,
@@ -25,6 +27,8 @@ class UserModel {
     this.passportNumber,
     this.latitude,
     this.longitude,
+    this.gender,
+    this.phoneNumber,
   }) : userImage = _validateImage(userImage);
 
   // Hàm kiểm tra và gán ảnh mặc định nếu userImage không hợp lệ
@@ -53,6 +57,8 @@ class UserModel {
       passportNumber: data['passportNumber']?.toString(),
       latitude: (data['latitude'] as num?)?.toDouble(),
       longitude: (data['longitude'] as num?)?.toDouble(),
+      gender: (data['gender'] as num?)?.toInt(),
+      phoneNumber: data['phoneNumber']?.toString(),
     );
   }
 
@@ -70,6 +76,8 @@ class UserModel {
       'passportNumber': passportNumber,
       'latitude': latitude,
       'longitude': longitude,
+      'gender': gender,
+      'phoneNumber': phoneNumber
     };
   }
 }

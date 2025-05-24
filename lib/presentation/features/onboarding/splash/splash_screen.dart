@@ -1,8 +1,8 @@
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/services/user_manager.dart';
-import 'package:blood_plus/features/home/home_screen.dart';
-import 'package:blood_plus/features/onboarding/started_screen.dart';
+import 'package:blood_plus/data/manager/user_manager.dart';
+import 'package:blood_plus/presentation/features/home/home_screen.dart';
+import 'package:blood_plus/presentation/features/onboarding/started_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {

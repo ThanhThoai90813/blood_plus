@@ -1,9 +1,9 @@
+import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/features/auth/login_screen.dart';
-import 'package:blood_plus/features/auth/sign_up_screen.dart';
+import 'package:blood_plus/core/widgets/custom_button.dart';
+import 'package:blood_plus/presentation/features/auth/login_screen.dart';
+import 'package:blood_plus/presentation/features/auth/sign_up_screen.dart';
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/widgets/custom_button.dart';
 
 class StartedScreen extends StatelessWidget {
   const StartedScreen({Key? key}) : super(key: key);

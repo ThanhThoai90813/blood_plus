@@ -1,7 +1,7 @@
+import 'package:blood_plus/presentation/features/onboarding/started_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:blood_plus/main.dart';
-import 'package:blood_plus/features/onboarding/started_screen.dart';
 
 void main() {
   testWidgets('Splash screen scales logo and navigates to started screen', (WidgetTester tester) async {
