@@ -1,9 +1,10 @@
+// 1. Enhanced Custom Bottom Navigation Bar
 import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:blood_plus/presentation/features/schedule/donation_event_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:blood_plus/core/constants/app_colors.dart';
 
-class CustomBottomNavBar extends StatelessWidget {
+class CustomBottomNavBar extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemTapped;
 
@@ -14,92 +15,174 @@ class CustomBottomNavBar extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
+}
+
+class _CustomBottomNavBarState extends State<CustomBottomNavBar>
+    with TickerProviderStateMixin {
+  late AnimationController _fabController;
+  late Animation<double> _fabScale;
+  late Animation<double> _fabRotation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fabController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _fabScale = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _fabController, curve: Curves.easeInOut),
+    );
+    _fabRotation = Tween<double>(begin: 0.0, end: 0.1).animate(
+      CurvedAnimation(parent: _fabController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _fabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    return SafeArea(
-      child: Container(
-        height: 61,
-        padding: EdgeInsets.zero,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, -2),
-            ),
-          ],
+    return Container(
+      height: 100,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            spreadRadius: 0,
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            spreadRadius: 0,
+            blurRadius: 40,
+            offset: const Offset(0, -8),
+          ),
+        ],
+      ),
+      child: SafeArea(
         child: Stack(
+          clipBehavior: Clip.none,
           alignment: Alignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(
-                  icon: Icons.home,
-                  label: localizations.translate('home'),
-                  index: 0,
-                  isSelected: selectedIndex == 0,
-                  onTap: onItemTapped,
-                ),
-                _buildNavItem(
-                  icon: Icons.calendar_today,
-                  label: localizations.translate('events'),
-                  index: 1,
-                  isSelected: selectedIndex == 1,
-                  onTap: onItemTapped,
-                ),
-                const SizedBox(width: 60), // Space for the center button
-                _buildNavItem(
-                  icon: Icons.handshake,
-                  label: localizations.translate('history'),
-                  index: 3,
-                  isSelected: selectedIndex == 3,
-                  onTap: onItemTapped,
-                ),
-                _buildNavItem(
-                  icon: Icons.person,
-                  label: localizations.translate('profile'),
-                  index: 4,
-                  isSelected: selectedIndex == 4,
-                  onTap: onItemTapped,
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(
+                    icon: Icons.home_rounded,
+                    label: localizations.translate('home'),
+                    index: 0,
+                    isSelected: widget.selectedIndex == 0,
+                    onTap: widget.onItemTapped,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.calendar_today_rounded,
+                    label: localizations.translate('events'),
+                    index: 1,
+                    isSelected: widget.selectedIndex == 1,
+                    onTap: widget.onItemTapped,
+                  ),
+                  const SizedBox(width: 72), // Space for center FAB
+                  _buildNavItem(
+                    icon: Icons.handshake_rounded,
+                    label: localizations.translate('history'),
+                    index: 3,
+                    isSelected: widget.selectedIndex == 3,
+                    onTap: widget.onItemTapped,
+                  ),
+                  _buildNavItem(
+                    icon: Icons.person_rounded,
+                    label: localizations.translate('profile'),
+                    index: 4,
+                    isSelected: widget.selectedIndex == 4,
+                    onTap: widget.onItemTapped,
+                  ),
+                ],
+              ),
             ),
+            // Enhanced FAB with animation and better design
             Positioned(
-              child: GestureDetector(
-                onTap: () {
-                  onItemTapped(2); // Cập nhật selectedIndex
-                  // Điều hướng đến màn hình BloodDonationScreen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DonationEventScreen(),
+              top: -20,
+              child: AnimatedBuilder(
+                animation: _fabController,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _fabScale.value,
+                    child: Transform.rotate(
+                      angle: _fabRotation.value,
+                      child: GestureDetector(
+                        onTapDown: (_) => _fabController.forward(),
+                        onTapUp: (_) => _fabController.reverse(),
+                        onTapCancel: () => _fabController.reverse(),
+                        onTap: () {
+                          widget.onItemTapped(2);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DonationEventScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.primaryRed,
+                                AppColors.primaryRed.withOpacity(0.8),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryRed.withOpacity(0.4),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: AppColors.primaryRed.withOpacity(0.2),
+                                blurRadius: 40,
+                                offset: const Offset(0, 16),
+                                spreadRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 2,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.bloodtype_rounded,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   );
                 },
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.primaryRed,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.bloodtype,
-                    color: Colors.white,
-                    size: 48,
-                  ),
-                ),
               ),
             ),
           ],
@@ -115,26 +198,56 @@ class CustomBottomNavBar extends StatelessWidget {
     required bool isSelected,
     required ValueChanged<int> onTap,
   }) {
-    return GestureDetector(
-      onTap: () => onTap(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: isSelected ? 32 : 28,
-            color: isSelected ? AppColors.primaryRed : Colors.grey,
-          ),
-          if (label.isNotEmpty)
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? AppColors.primaryRed : Colors.grey,
-                fontSize: 12,
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 200),
+      tween: Tween<double>(begin: 0, end: isSelected ? 1 : 0),
+      builder: (context, animation, child) {
+        return GestureDetector(
+          onTap: () => onTap(index),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Color.lerp(
+                Colors.transparent,
+                AppColors.primaryRed.withOpacity(0.1),
+                animation,
               ),
             ),
-        ],
-      ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Transform.scale(
+                  scale: 1 + (animation * 0.1),
+                  child: Icon(
+                    icon,
+                    size: 24,
+                    color: Color.lerp(
+                      Colors.grey.shade500,
+                      AppColors.primaryRed,
+                      animation,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                if (label.isNotEmpty)
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Color.lerp(
+                        Colors.grey.shade500,
+                        AppColors.primaryRed,
+                        animation,
+                      ),
+                      fontSize: 11,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

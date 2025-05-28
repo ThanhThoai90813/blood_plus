@@ -17,20 +17,6 @@ class AuthService {
 
   Future<Map<String, dynamic>> login(
       String username, String password, Map<String, String> localizedStrings) async {
-    if (username == 'thanhthoai' && password == '123') {
-      const token = 'static_token_thanhthoai';
-      const userId = 'ebd09596-aa95-4ff3-a2fa-cfd053ef6c0a';
-      await _userManager.saveUserToken(token);
-      await _userManager.saveUserId(userId);
-      final user = await _userService.getUserInfo(userId, token);
-      await _userManager.saveUserInfo(userId, user);
-      print('Static login successful: $userId, User: ${user.toJson()}');
-      return {
-        'accessToken': token,
-        'userId': userId,
-        'message': 'Chào mừng mày trở lại! Anh Thoai DepTraiBodoiqua.'
-      };
-    }
 
     final url = Uri.parse('$baseUrl/auth/auth-account');
     final body = jsonEncode({'username': username, 'password': password});
@@ -90,7 +76,7 @@ class AuthService {
     final GoogleSignIn googleSignIn = GoogleSignIn(
       scopes: ['email', 'profile'],
       serverClientId:
-      '33333980186-6tgdq00nt9ejnsq02gp6h77ejkugg0be.apps.googleusercontent.com',
+      '986545767958-5aat5tc01vc2a49aqpiukqd2rq6sbma4.apps.googleusercontent.com',
     );
 
     try {

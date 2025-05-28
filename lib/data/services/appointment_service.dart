@@ -16,11 +16,12 @@ class AppointmentService {
     final url = Uri.parse('$baseUrl/appointment');
 
     try {
+      print('Payload: $payload');
       final response = await client.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'accept': '*/*',
+          'Accept': 'text/plain',
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode(payload),
@@ -29,7 +30,7 @@ class AppointmentService {
       if (response.statusCode == 200) {
         print('Appointment created successfully: ${response.body}');
       } else {
-        throw Exception('Failed to create appointment: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to appointment: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       throw Exception('Connection error: $e');

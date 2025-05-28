@@ -25,17 +25,6 @@ class _ExpertAdviceScreenState extends State<ExpertAdviceScreen> {
       ],
     ),
     ExpansionPanelItem(
-      header: 'who_cant_donate',
-      subtitle: 'who_can_donate_subtitle', // Reusing existing subtitle for consistency
-      icon: Icons.block,
-      children: [
-        _TipCard(
-            title: 'who_cant_donate',
-        description: 'who_cant_donate_desc',
-        ),
-      ],
-    ),
-    ExpansionPanelItem(
       header: 'before_donation',
       subtitle: 'before_donation_subtitle',
       icon: Icons.local_drink,
@@ -259,24 +248,33 @@ class _ExpertAdviceScreenState extends State<ExpertAdviceScreen> {
         ),
       ],
     ),
-    ExpansionPanelItem(
-      header: 'information',
-      subtitle: 'information',
-      icon: Icons.local_hospital,
-      children: [
-        _MedicalFacilityCard(
-          name: 'Chợ Rẫy Hospital',
-          address: '201B Nguyễn Chí Thanh, District 5, HCM',
-          image: 'assets/images/news1.jpg',
-        ),
-        _MedicalFacilityCard(
-          name: 'Blood Transfusion Center',
-          address: '118 Hồng Bàng, District 5, HCM',
-          image: 'assets/images/news1.jpg',
-        ),
-      ],
-    ),
   ];
+
+  List<ExpansionPanelItem> _filteredItems = [];
+  TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredItems = _items;
+    _searchController.addListener(_filterItems);
+  }
+
+  void _filterItems() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredItems = _items.where((item) {
+        final title = AppLocalizations.of(context).translate(item.header).toLowerCase();
+        return title.contains(query);
+      }).toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -303,73 +301,90 @@ class _ExpertAdviceScreenState extends State<ExpertAdviceScreen> {
       ),
       body: Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, statusBarHeight + 20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              ExpansionPanelList(
-                expansionCallback: (int index, bool isExpanded) {
-                  print('Expansion callback triggered for index: $index, isExpanded: $isExpanded');
-                  setState(() {
-                    _items[index].isExpanded = !isExpanded;
-                  });
-                },
-                children: _items.map<ExpansionPanel>((ExpansionPanelItem item) {
-                  return ExpansionPanel(
-                    headerBuilder: (context, isExpanded) {
-                      return GestureDetector(
-                        onTap: () {
-                          print('Header tapped for ${item.header}');
-                          setState(() {
-                            item.isExpanded = !item.isExpanded;
-                          });
-                        },
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                          leading: Icon(item.icon, color: AppColors.primaryRed, size: 28),
-                          title: ShaderMask(
-                            shaderCallback: (bounds) => LinearGradient(
-                              colors: [AppColors.primaryRed, AppColors.darkRed],
-                            ).createShader(bounds),
-                            child: Text(
-                              localizations.translate(item.header),
-                              style: GoogleFonts.poppins(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              localizations.translate(item.subtitle),
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.grey[800],
-                                height: 1.5,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    body: Padding(
-                      padding: const EdgeInsets.only(left: 48, top: 8, bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: item.children,
-                      ),
-                    ),
-                    isExpanded: item.isExpanded,
-                    canTapOnHeader: true,
-                  );
-                }).toList(),
-                dividerColor: Colors.transparent,
-                elevation: 2,
-                animationDuration: const Duration(milliseconds: 300),
+        child: Column(
+          children: [
+            // Tìm kiếm
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: localizations.translate('search_hint'),
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  fillColor: Colors.grey[200],
+                  filled: true,
+                ),
               ),
-            ],
-          ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: ExpansionPanelList(
+                  expansionCallback: (int index, bool isExpanded) {
+                    setState(() {
+                      _filteredItems[index].isExpanded = !isExpanded;
+                    });
+                  },
+                  children: _filteredItems.map<ExpansionPanel>((ExpansionPanelItem item) {
+                    return ExpansionPanel(
+                      headerBuilder: (context, isExpanded) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              item.isExpanded = !item.isExpanded;
+                            });
+                          },
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                            leading: Icon(item.icon, color: AppColors.primaryRed, size: 28),
+                            title: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [AppColors.primaryRed, AppColors.darkRed],
+                              ).createShader(bounds),
+                              child: Text(
+                                localizations.translate(item.header),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                localizations.translate(item.subtitle),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: Colors.grey[800],
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      body: Padding(
+                        padding: const EdgeInsets.only(left: 48, top: 8, bottom: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: item.children,
+                        ),
+                      ),
+                      isExpanded: item.isExpanded,
+                      canTapOnHeader: true,
+                    );
+                  }).toList(),
+                  dividerColor: Colors.transparent,
+                  elevation: 2,
+                  animationDuration: const Duration(milliseconds: 300),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

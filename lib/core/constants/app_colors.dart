@@ -1,5 +1,3 @@
-//Định nghĩa màu sắc cho ứng dụng.
-
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -10,4 +8,8 @@ class AppColors {
   static const Color white = Colors.white;
   static const Color blue = Colors.blue;
   static const Color black = Colors.black;
+
+  static const Color borderColor = Color(0xFFE2E8F0);
+  static const Color textPrimary = Color(0xFF1A202C);
+  static const Color textSecondary = Color(0xFF718096);
 }
