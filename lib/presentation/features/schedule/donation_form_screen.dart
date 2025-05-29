@@ -78,88 +78,86 @@ class _DonationFormScreenState extends State<DonationFormScreen>
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+    _formKey.currentState!.save();
 
-      // Show loading dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryRed),
-          ),
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryRed),
         ),
-      );
+      ),
+    );
 
-      final payload = {
-        'eventId': widget.eventId,
-        'bloodComponent': int.parse(bloodComponent),
-        'hasDonatedBefore': hasDonatedBefore,
-        'hasDiseases': hasDiseases,
-        'diseaseDetails': hasDiseases ? diseaseDetails : '',
-        'isTakingMedicine': isTakingMedicine,
-        'medicineDetails': isTakingMedicine ? medicineDetails : '',
-        'symptoms': symptoms,
-        'riskBehavior': riskBehavior,
-        'travelHistory': travelHistory,
-        'tattooOrSurgery': tattooOrSurgery,
-        'weightOver45kg': weightOver45kg,
-        'notes': notes,
-        'hasPreviousInfections': hasPreviousInfections,
-        'previousInfectionsDetails': hasPreviousInfections ? previousInfectionsDetails : '',
-        'hadRecentIllness12Months': hadRecentIllness12Months,
-        'recentIllness12MonthsDetails': hadRecentIllness12Months ? recentIllnessDetails : '',
-        'hadRecentIllness6Months': hadRecentIllness6Months,
-        'hadRecentIllness1Month': hadRecentIllness1Month,
-        'hadRecentIllness14Days': hadRecentIllness14Days,
-        'recentIllness14DaysDetails': hadRecentIllness14Days ? recentIllness14DaysDetails : '',
-        'usedAntibiotics7Days': usedAntibiotics7Days,
-        'antibioticsDetails': usedAntibiotics7Days ? antibioticsDetails : '',
-        'isPregnantOrRecentMother': isPregnantOrRecentMother,
-        'pregnancyDetails': isPregnantOrRecentMother ? pregnancyDetails : '',
-      };
+    final payload = {
+      'eventId': widget.eventId,
+      'bloodComponent': int.parse(bloodComponent),
+      'hasDonatedBefore': hasDonatedBefore,
+      'hasDiseases': hasDiseases,
+      'diseaseDetails': hasDiseases ? diseaseDetails : '',
+      'isTakingMedicine': isTakingMedicine,
+      'medicineDetails': isTakingMedicine ? medicineDetails : '',
+      'symptoms': symptoms,
+      'riskBehavior': riskBehavior,
+      'travelHistory': travelHistory,
+      'tattooOrSurgery': tattooOrSurgery,
+      'weightOver45kg': weightOver45kg,
+      'notes': notes,
+      'hasPreviousInfections': hasPreviousInfections,
+      'previousInfectionsDetails': hasPreviousInfections ? previousInfectionsDetails : '',
+      'hadRecentIllness12Months': hadRecentIllness12Months,
+      'recentIllness12MonthsDetails': hadRecentIllness12Months ? recentIllnessDetails : '',
+      'hadRecentIllness6Months': hadRecentIllness6Months,
+      'hadRecentIllness1Month': hadRecentIllness1Month,
+      'hadRecentIllness14Days': hadRecentIllness14Days,
+      'recentIllness14DaysDetails': hadRecentIllness14Days ? recentIllness14DaysDetails : '',
+      'usedAntibiotics7Days': usedAntibiotics7Days,
+      'antibioticsDetails': usedAntibiotics7Days ? antibioticsDetails : '',
+      'isPregnantOrRecentMother': isPregnantOrRecentMother,
+      'pregnancyDetails': isPregnantOrRecentMother ? pregnancyDetails : '',
+    };
 
-      try {
-        await AppointmentService().createAppointment(payload);
-        if (context.mounted) {
-          Navigator.pop(context); // Close loading dialog
-          Navigator.pop(context); // Go back to previous screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Text(
-                    AppLocalizations.of(context).translate('form_submitted_successfully'),
-                  ),
-                ],
-              ),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    try {
+      await AppointmentService().createAppointment(payload);
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        Navigator.pop(context); // Go back to previous screen
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context).translate('form_submitted_successfully'),
+                ),
+              ],
             ),
-          );
-        }
-      } catch (e) {
-        if (context.mounted) {
-          Navigator.pop(context); // Close loading dialog
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.error, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Text('Error: $e'),
-                ],
-              ),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 8),
+                Text('Error: $e'),
+              ],
             ),
-          );
-        }
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
       }
     }
   }
@@ -288,12 +286,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                 bloodComponent = value!;
               });
             },
-            validator: (value) {
-              if (value == null || !['0', '1', '2', '3', '4'].contains(value)) {
-                return localizations.translate('invalid_blood_component');
-              }
-              return null;
-            },
           ),
         ],
       ),
@@ -354,7 +346,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
 
   Widget _buildStyledTextField({
     required String labelText,
-    required FormFieldValidator<String>? validator,
     required FormFieldSetter<String>? onSaved,
     int maxLines = 1,
     IconData? icon,
@@ -417,7 +408,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               hintStyle: TextStyle(color: Colors.grey.shade500),
             ),
-            validator: validator,
             onSaved: onSaved,
           ),
         ],
@@ -526,12 +516,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                   if (hasDiseases)
                     _buildStyledTextField(
                       labelText: localizations.translate('disease_details'),
-                      validator: (value) {
-                        if (hasDiseases && (value == null || value.trim().isEmpty)) {
-                          return localizations.translate('disease_details_required');
-                        }
-                        return null;
-                      },
                       onSaved: (value) => diseaseDetails = value ?? '',
                       icon: Icons.description,
                     ),
@@ -546,60 +530,30 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                   if (isTakingMedicine)
                     _buildStyledTextField(
                       labelText: localizations.translate('medicine_details'),
-                      validator: (value) {
-                        if (isTakingMedicine && (value == null || value.trim().isEmpty)) {
-                          return localizations.translate('medicine_details_required');
-                        }
-                        return null;
-                      },
                       onSaved: (value) => medicineDetails = value ?? '',
                       icon: Icons.description,
                     ),
 
                   _buildStyledTextField(
                     labelText: localizations.translate('symptoms'),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return localizations.translate('symptoms_required');
-                      }
-                      return null;
-                    },
                     onSaved: (value) => symptoms = value ?? '',
                     icon: Icons.sick,
                   ),
 
                   _buildStyledTextField(
                     labelText: localizations.translate('risk_behavior'),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return localizations.translate('risk_behavior_required');
-                      }
-                      return null;
-                    },
                     onSaved: (value) => riskBehavior = value ?? '',
                     icon: Icons.warning,
                   ),
 
                   _buildStyledTextField(
                     labelText: localizations.translate('travel_history'),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return localizations.translate('travel_history_required');
-                      }
-                      return null;
-                    },
                     onSaved: (value) => travelHistory = value ?? '',
                     icon: Icons.flight,
                   ),
 
                   _buildStyledTextField(
                     labelText: localizations.translate('tattoo_or_surgery'),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return localizations.translate('tattoo_or_surgery_required');
-                      }
-                      return null;
-                    },
                     onSaved: (value) => tattooOrSurgery = value ?? '',
                     icon: Icons.healing,
                   ),
@@ -616,12 +570,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                   if (hasPreviousInfections)
                     _buildStyledTextField(
                       labelText: localizations.translate('previous_infections_details'),
-                      validator: (value) {
-                        if (hasPreviousInfections && (value == null || value.trim().isEmpty)) {
-                          return localizations.translate('previous_infections_details_required');
-                        }
-                        return null;
-                      },
                       onSaved: (value) => previousInfectionsDetails = value ?? '',
                       icon: Icons.description,
                     ),
@@ -636,12 +584,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                   if (hadRecentIllness12Months)
                     _buildStyledTextField(
                       labelText: localizations.translate('recent_illness_12_months_details'),
-                      validator: (value) {
-                        if (hadRecentIllness12Months && (value == null || value.trim().isEmpty)) {
-                          return localizations.translate('recent_illness_12_months_details_required');
-                        }
-                        return null;
-                      },
                       onSaved: (value) => recentIllnessDetails = value ?? '',
                       icon: Icons.description,
                     ),
@@ -670,12 +612,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                   if (hadRecentIllness14Days)
                     _buildStyledTextField(
                       labelText: localizations.translate('recent_illness_14_days_details'),
-                      validator: (value) {
-                        if (hadRecentIllness14Days && (value == null || value.trim().isEmpty)) {
-                          return localizations.translate('recent_illness_14_days_details_required');
-                        }
-                        return null;
-                      },
                       onSaved: (value) => recentIllness14DaysDetails = value ?? '',
                       icon: Icons.description,
                     ),
@@ -690,12 +626,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                   if (usedAntibiotics7Days)
                     _buildStyledTextField(
                       labelText: localizations.translate('antibiotics_details'),
-                      validator: (value) {
-                        if (usedAntibiotics7Days && (value == null || value.trim().isEmpty)) {
-                          return localizations.translate('antibiotics_details_required');
-                        }
-                        return null;
-                      },
                       onSaved: (value) => antibioticsDetails = value ?? '',
                       icon: Icons.description,
                     ),
@@ -711,12 +641,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                   if (isPregnantOrRecentMother)
                     _buildStyledTextField(
                       labelText: localizations.translate('pregnancy_details'),
-                      validator: (value) {
-                        if (isPregnantOrRecentMother && (value == null || value.trim().isEmpty)) {
-                          return localizations.translate('pregnancy_details_required');
-                        }
-                        return null;
-                      },
                       onSaved: (value) => pregnancyDetails = value ?? '',
                       icon: Icons.description,
                     ),
@@ -725,12 +649,6 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                   _buildStyledTextField(
                     labelText: localizations.translate('notes'),
                     maxLines: 4,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return localizations.translate('notes_required');
-                      }
-                      return null;
-                    },
                     onSaved: (value) => notes = value ?? '',
                     icon: Icons.note_add,
                   ),
@@ -756,7 +674,7 @@ class _DonationFormScreenState extends State<DonationFormScreen>
                             const Icon(Icons.send, color: Colors.white, size: 24),
                             const SizedBox(width: 8),
                             Text(
-                              localizations.translate('submit'),
+                              localizations.translate('sign_up'),
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,

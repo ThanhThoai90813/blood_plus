@@ -1,10 +1,8 @@
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/widgets/dialog_helper.dart';
 import 'package:blood_plus/data/manager/user_manager.dart';
 import 'package:blood_plus/data/models/user_model.dart';
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'campaign_card.dart';

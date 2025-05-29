@@ -37,7 +37,7 @@
 
         <meta-data
             android:name="com.google.android.gms.signin.client_id"
-            android:value="986545767958-5aat5tc01vc2a49aqpiukqd2rq6sbma4.apps.googleusercontent.com" />
+            android:value="229734390839-3n21tokpf4sg0l6v7kur91dk78djvr9p.apps.googleusercontent.com" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

@@ -11,7 +11,7 @@ class UserManager {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
     serverClientId:
-    '986545767958-5aat5tc01vc2a49aqpiukqd2rq6sbma4.apps.googleusercontent.com',
+    '229734390839-3n21tokpf4sg0l6v7kur91dk78djvr9p.apps.googleusercontent.com',
   );
 
   Future<void> saveUserToken(String token) async {

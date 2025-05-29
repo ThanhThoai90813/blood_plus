@@ -4,6 +4,7 @@ import 'package:blood_plus/core/language_helper/localization.dart';
 import 'package:blood_plus/core/widgets/dialog_helper.dart';
 import 'package:blood_plus/data/models/donation_event_model.dart';
 import 'package:blood_plus/data/services/donation_event_service.dart';
+import 'package:blood_plus/presentation/features/schedule/donation_event_detail_screen.dart';
 import 'package:blood_plus/presentation/features/schedule/donation_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -331,7 +332,7 @@ class _DonationEventScreenState extends State<DonationEventScreen>
                   child: Text(
                     localizations.translate('donation_events'),
                     style: GoogleFonts.poppins(
-                      fontSize: 20,
+                      fontSize: 19,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                       letterSpacing: 0.5,
@@ -678,22 +679,11 @@ class _DonationEventScreenState extends State<DonationEventScreen>
   }
 
   void _showScheduleDialog(DonationEvent event, AppLocalizations localizations) {
-    DialogHelper.showConfirmationDialog(
-      context: context,
-      title: localizations.translate('schedule_donation'),
-      message: localizations.translate('confirm_schedule_donation'),
-      cancelButtonText: localizations.translate('cancel'),
-      confirmButtonText: localizations.translate('confirm'),
-      onConfirm: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DonationFormScreen(eventId: event.id),
-          ),
-        );
-      },
-      icon: Icons.calendar_today,
-      iconColor: AppColors.primaryRed,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventDetailScreen(event: event),
+      ),
     );
   }
 }
@@ -1314,8 +1304,8 @@ class _EventCardState extends State<_EventCard> with SingleTickerProviderStateMi
                                       const SizedBox(width: 8),
                                       Text(
                                         progress >= 1.0
-                                            ? 'Đã đầy'
-                                            : localizations.translate('register_now'),
+                                            ? localizations.translate('Full')
+                                            : localizations.translate('view_detail'),
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,

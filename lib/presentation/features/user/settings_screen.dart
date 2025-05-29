@@ -294,7 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
           items: _languageCodes.map<DropdownMenuItem<String>>((String language) {
             return DropdownMenuItem<String>(
               value: language,
-              child: Text(language),
+              child: Text(languageDisplayNames[language] ?? language),
             );
           }).toList(),
         ),

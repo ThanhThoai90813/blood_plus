@@ -36,4 +36,8 @@ class AppointmentService {
       throw Exception('Connection error: $e');
     }
   }
+
+  cancelAppointment(String appointmentId) {}
+
+  getAppointments() {}
 }

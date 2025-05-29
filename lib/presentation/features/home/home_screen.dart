@@ -3,6 +3,7 @@ import 'package:blood_plus/core/widgets/custom_button_navBar.dart';
 import 'package:blood_plus/core/widgets/feature_grid.dart';
 import 'package:blood_plus/core/widgets/header_section.dart';
 import 'package:blood_plus/core/widgets/news_carousel.dart';
+import 'package:blood_plus/presentation/features/schedule/donation_history_screen.dart';
 import 'package:blood_plus/presentation/features/user/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,6 +55,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         context,
         MaterialPageRoute(
           builder: (context) => const ProfileScreen(),
+        ),
+      );
+    }
+    if (index == 3 ) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HistoryScreen(),
         ),
       );
     }

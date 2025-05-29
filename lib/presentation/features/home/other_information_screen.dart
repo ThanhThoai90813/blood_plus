@@ -338,7 +338,7 @@ class _InformationScreenState extends State<InformationScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.local_hospital, size: 18),
+                const Icon(Icons.local_hospital, size: 17),
                 const SizedBox(width: 8),
                 Text(localizations.translate('donate_blood')),
               ],
