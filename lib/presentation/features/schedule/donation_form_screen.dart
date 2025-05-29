@@ -1,7 +1,8 @@
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/widgets/custom_button.dart';
 import 'package:blood_plus/data/services/appointment_service.dart';
+import 'package:blood_plus/presentation/features/schedule/donation_history_screen.dart';
+import 'package:blood_plus/core/widgets/dialog_helper.dart';
 import 'package:flutter/material.dart';
 
 class DonationFormScreen extends StatefulWidget {
@@ -78,86 +79,86 @@ class _DonationFormScreenState extends State<DonationFormScreen>
   }
 
   Future<void> _submitForm() async {
-    _formKey.currentState!.save();
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
 
-    // Show loading dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryRed),
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryRed),
+          ),
         ),
-      ),
-    );
+      );
 
-    final payload = {
-      'eventId': widget.eventId,
-      'bloodComponent': int.parse(bloodComponent),
-      'hasDonatedBefore': hasDonatedBefore,
-      'hasDiseases': hasDiseases,
-      'diseaseDetails': hasDiseases ? diseaseDetails : '',
-      'isTakingMedicine': isTakingMedicine,
-      'medicineDetails': isTakingMedicine ? medicineDetails : '',
-      'symptoms': symptoms,
-      'riskBehavior': riskBehavior,
-      'travelHistory': travelHistory,
-      'tattooOrSurgery': tattooOrSurgery,
-      'weightOver45kg': weightOver45kg,
-      'notes': notes,
-      'hasPreviousInfections': hasPreviousInfections,
-      'previousInfectionsDetails': hasPreviousInfections ? previousInfectionsDetails : '',
-      'hadRecentIllness12Months': hadRecentIllness12Months,
-      'recentIllness12MonthsDetails': hadRecentIllness12Months ? recentIllnessDetails : '',
-      'hadRecentIllness6Months': hadRecentIllness6Months,
-      'hadRecentIllness1Month': hadRecentIllness1Month,
-      'hadRecentIllness14Days': hadRecentIllness14Days,
-      'recentIllness14DaysDetails': hadRecentIllness14Days ? recentIllness14DaysDetails : '',
-      'usedAntibiotics7Days': usedAntibiotics7Days,
-      'antibioticsDetails': usedAntibiotics7Days ? antibioticsDetails : '',
-      'isPregnantOrRecentMother': isPregnantOrRecentMother,
-      'pregnancyDetails': isPregnantOrRecentMother ? pregnancyDetails : '',
-    };
+      final payload = {
+        'eventId': widget.eventId,
+        'bloodComponent': int.parse(bloodComponent),
+        'hasDonatedBefore': hasDonatedBefore,
+        'hasDiseases': hasDiseases,
+        'diseaseDetails': hasDiseases ? diseaseDetails : '',
+        'isTakingMedicine': isTakingMedicine,
+        'medicineDetails': isTakingMedicine ? medicineDetails : '',
+        'symptoms': symptoms,
+        'riskBehavior': riskBehavior,
+        'travelHistory': travelHistory,
+        'tattooOrSurgery': tattooOrSurgery,
+        'weightOver45kg': weightOver45kg,
+        'notes': notes,
+        'hasPreviousInfections': hasPreviousInfections,
+        'previousInfectionsDetails': hasPreviousInfections ? previousInfectionsDetails : '',
+        'hadRecentIllness12Months': hadRecentIllness12Months,
+        'recentIllness12MonthsDetails': hadRecentIllness12Months ? recentIllnessDetails : '',
+        'hadRecentIllness6Months': hadRecentIllness6Months,
+        'hadRecentIllness1Month': hadRecentIllness1Month,
+        'hadRecentIllness14Days': hadRecentIllness14Days,
+        'recentIllness14DaysDetails': hadRecentIllness14Days ? recentIllness14DaysDetails : '',
+        'usedAntibiotics7Days': usedAntibiotics7Days,
+        'antibioticsDetails': usedAntibiotics7Days ? antibioticsDetails : '',
+        'isPregnantOrRecentMother': isPregnantOrRecentMother,
+        'pregnancyDetails': isPregnantOrRecentMother ? pregnancyDetails : '',
+      };
 
-    try {
-      await AppointmentService().createAppointment(payload);
-      if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog
-        Navigator.pop(context); // Go back to previous screen
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context).translate('form_submitted_successfully'),
-                ),
-              ],
+      try {
+        await AppointmentService().createAppointment(payload);
+        if (context.mounted) {
+          Navigator.pop(context); // Close loading dialog
+          // Show success dialog with navigation to HistoryScreen on button press
+          DialogHelper.showAnimatedSuccessDialog(
+            context: context,
+            title: AppLocalizations.of(context).translate('success'),
+            message: AppLocalizations.of(context).translate('form_submitted_successfully'),
+            buttonText: AppLocalizations.of(context).translate('ok'),
+            icon: Icons.check_circle_outline_rounded,
+            iconColor: Colors.green,
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+              );
+            },
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          Navigator.pop(context); // Close loading dialog
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text('Error: $e'),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('Error: $e'),
-              ],
-            ),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+          );
+        }
       }
     }
   }
