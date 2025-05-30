@@ -236,7 +236,7 @@
   "weight_over_45kg": "Is your weight over 45kg?",
   "notes": "Additional Notes",
   "submit": "Submit",
-  "form_submitted_successfully": "Form submitted successfully!",
+  "form_submitted_successfully": "Scheduled successfully!",
   "could_not_launch_google_maps": "Could not launch Google Maps",
   "no_google_maps": "Google Maps not found",
   "open_in_browser": "Google Maps not found. Would you like to open in browser?",
@@ -317,5 +317,18 @@
   "upcoming": "Upcoming",
   "cancelled": "Cancelled",
   "appointment_canceled": "Appointment cancelled successfully",
-  "success": "Success"
+  "success": "Success",
+  "mark_completed": "Completed",
+  "complete_appointment": "Complete Appointment",
+  "confirm_complete_appointment": "Are you sure you want to mark this appointment as completed?",
+  "appointment_completed": "Appointment marked as completed successfully",
+  "error_completing_appointment": "Error marking appointment as completed",
+  "cannot_complete_non_pending": "Only pending appointments can be marked as completed",
+  "cannot_open_maps": "Unable to open Google Maps",
+  "cannot_open_calendar": "Unable to open Calendar",
+  "tap_to_open_calendar": "Tap to open Calendar",
+  "status_unknown": "Unknown",
+  "description": "Description",
+  "time_title": "Event Time",
+  "appointment_details": "Appointment details"
 }

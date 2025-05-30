@@ -9,6 +9,10 @@ class DonationEvent {
   final String endTime;
   final int requiredDonors;
   final int currentDonors;
+  final String description;
+  final String? image;
+  final String status;
+  final bool isEmergency;
 
   DonationEvent({
     required this.id,
@@ -19,6 +23,10 @@ class DonationEvent {
     required this.endTime,
     required this.requiredDonors,
     required this.currentDonors,
+    required this.description,
+    this.image,
+    required this.status,
+    required this.isEmergency,
   });
 
   factory DonationEvent.fromJson(Map<String, dynamic> json) {
@@ -29,8 +37,16 @@ class DonationEvent {
       organizationName: json['organizationName'] ?? '',
       eventDate: json['eventDate'] ?? '',
       endTime: json['endTime'] ?? '',
-      requiredDonors: json['requiredDonors'] ?? 0,
-      currentDonors: json['currentDonors'] ?? 0,
+      requiredDonors: (json['requiredDonors'] is int && json['requiredDonors'] >= 0)
+          ? json['requiredDonors']
+          : 0,
+      currentDonors: (json['currentDonors'] is int && json['currentDonors'] >= 0)
+          ? json['currentDonors']
+          : 0,
+      description: json['description'] ?? '',
+      image: json['image'],
+      status: json['status'] ?? 'Unknown',
+      isEmergency: json['isEmergency'] ?? false,
     );
   }
 
@@ -44,16 +60,19 @@ class DonationEvent {
       'endTime': endTime,
       'requiredDonors': requiredDonors,
       'currentDonors': currentDonors,
+      'description': description,
+      'image': image,
+      'status': status,
+      'isEmergency': isEmergency,
     };
   }
 
-  // Định dạng ngày (dd/MM/yyyy)
   String getFormattedDate() {
     try {
       final date = DateTime.parse(eventDate);
       return DateFormat('dd/MM/yyyy').format(date);
     } catch (e) {
-      return eventDate.split('T')[0]; // Fallback nếu parse lỗi
+      return eventDate.split('T')[0];
     }
   }
 
@@ -64,8 +83,19 @@ class DonationEvent {
       final timeFormat = DateFormat('HH:mm');
       return '${timeFormat.format(start)} - ${timeFormat.format(end)}';
     } catch (e) {
-      return '${eventDate.split('T')[1].split('.')[0]} - ${endTime.split('T')[1].split('.')[0]}'; // Fallback
+      String formatTime(String dateStr) {
+        if (dateStr.contains('T')) {
+          final parts = dateStr.split('T');
+          final timePart = parts[1].split('.')[0];
+          return timePart;
+        } else {
+          return dateStr;
+        }
+      }
+
+      final startTime = formatTime(eventDate);
+      final endTimeStr = formatTime(endTime);
+      return '$startTime - $endTimeStr';
     }
   }
-
 }

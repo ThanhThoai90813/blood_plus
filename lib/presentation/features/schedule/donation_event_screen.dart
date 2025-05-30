@@ -682,7 +682,7 @@ class _DonationEventScreenState extends State<DonationEventScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EventDetailScreen(event: event),
+        builder: (context) => EventDetailScreen(eventId: event.id),
       ),
     );
   }

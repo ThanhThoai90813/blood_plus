@@ -132,8 +132,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
   List<Appointment> get _filteredAppointments {
     switch (_selectedFilter) {
       case 'upcoming':
-        return _appointments.where((apt) =>
-            DateTime.parse(apt.appointmentDate).isAfter(DateTime.now())).toList();
+        return _appointments.where((apt) => apt.status == AppointmentStatus.pending).toList();
       case 'completed':
         return _appointments.where((apt) => apt.status == AppointmentStatus.completed).toList();
       case 'cancelled':

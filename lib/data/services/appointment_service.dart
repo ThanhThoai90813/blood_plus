@@ -105,4 +105,32 @@ class AppointmentService {
       throw Exception('Lỗi kết nối: $e');
     }
   }
+
+  Future<void> completeAppointment(String appointmentId) async {
+    final token = await _userManager.getUserToken();
+    final url = Uri.parse('$baseUrl/appointment/markcompleted-$appointmentId');
+
+    try {
+      final response = await client.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'text/plain',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Complete Appointment response status: ${response.statusCode}');
+      print('Complete Appointment response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('Appointment completed successfully: ${response.body}');
+      } else {
+        throw Exception('Failed to complete appointment: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Connection error: $e');
+    }
+  }
+
 }

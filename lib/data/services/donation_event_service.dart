@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:blood_plus/data/manager/user_manager.dart';
+import 'package:blood_plus/data/models/donation_event_model.dart';
 import 'package:blood_plus/data/repositories/donation_event_response.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
@@ -57,4 +58,33 @@ class DonationEventService {
       throw Exception('Lỗi kết nối: $e');
     }
   }
+
+  Future<DonationEvent> getDonationEventById(String id) async {
+    final token = await _userManager.getUserToken();
+    final url = Uri.parse('$baseUrl/donationevent/$id');
+
+    try {
+      final response = await client.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('DonationEventById response status: ${response.statusCode}');
+      print('DonationEventById response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return DonationEvent.fromJson(data['message']);
+      } else {
+        throw Exception('Lấy chi tiết sự kiện thất bại: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Lỗi kết nối: $e');
+    }
+  }
+
 }

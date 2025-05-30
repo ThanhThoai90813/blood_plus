@@ -1,19 +1,17 @@
 import 'dart:ui';
-
 import 'package:blood_plus/core/constants/app_colors.dart';
 import 'package:blood_plus/core/language_helper/localization.dart';
-import 'package:blood_plus/core/widgets/custom_button.dart';
 import 'package:blood_plus/data/models/donation_event_model.dart';
+import 'package:blood_plus/data/services/donation_event_service.dart';
+import 'package:blood_plus/presentation/features/schedule/donation_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:blood_plus/presentation/features/schedule/donation_form_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EventDetailScreen extends StatefulWidget {
-  final DonationEvent event;
+  final String eventId;
 
-  const EventDetailScreen({super.key, required this.event});
+  const EventDetailScreen({super.key, required this.eventId});
 
   @override
   State<EventDetailScreen> createState() => _EventDetailScreenState();
@@ -24,81 +22,85 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   late AnimationController _mainAnimationController;
   late AnimationController _progressAnimationController;
   late AnimationController _fabAnimationController;
-
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  late Animation<double> _progressAnimation;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _progressAnimation;
   late Animation<double> _fabAnimation;
+
+  DonationEvent? _event;
 
   @override
   void initState() {
     super.initState();
+    _initializeAnimations();
+    _fetchEventDetail();
+  }
 
-    // Main animation controller
+  void _initializeAnimations() {
     _mainAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-
-    // Progress animation controller
     _progressAnimationController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-
-    // FAB animation controller
     _fabAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    // Animations
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
           parent: _mainAnimationController,
-          curve: const Interval(0.0, 0.6, curve: Curves.easeOut)
-      ),
+          curve: const Interval(0.0, 0.6, curve: Curves.easeOut)),
     );
-
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(CurvedAnimation(
         parent: _mainAnimationController,
-        curve: const Interval(0.2, 0.8, curve: Curves.elasticOut)
-    ));
-
+        curve: const Interval(0.2, 0.8, curve: Curves.elasticOut)));
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
           parent: _mainAnimationController,
-          curve: const Interval(0.0, 0.6, curve: Curves.elasticOut)
-      ),
-    );
-
-    final progress = widget.event.currentDonors / widget.event.requiredDonors;
-    _progressAnimation = Tween<double>(begin: 0.0, end: progress.clamp(0.0, 1.0)).animate(
-      CurvedAnimation(
-          parent: _progressAnimationController,
-          curve: Curves.easeInOutCubic
-      ),
+          curve: const Interval(0.0, 0.6, curve: Curves.elasticOut)),
     );
 
     _fabAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-          parent: _fabAnimationController,
-          curve: Curves.elasticOut
-      ),
+          parent: _fabAnimationController, curve: Curves.elasticOut),
     );
 
-    // Start animations
-    _mainAnimationController.forward();
-    Future.delayed(const Duration(milliseconds: 800), () {
-      _progressAnimationController.forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_event != null) {
+        _mainAnimationController.forward();
+        _progressAnimationController.forward();
+        _fabAnimationController.forward();
+      }
     });
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      _fabAnimationController.forward();
-    });
+  }
+
+  Future<void> _fetchEventDetail() async {
+    try {
+      final event = await DonationEventService().getDonationEventById(widget.eventId);
+      setState(() {
+        _event = event;
+        final progress = _event!.requiredDonors > 0
+            ? _event!.currentDonors / _event!.requiredDonors
+            : 0.0;
+        _progressAnimation = Tween<double>(begin: 0.0, end: progress.clamp(0.0, 1.0))
+            .animate(CurvedAnimation(
+            parent: _progressAnimationController,
+            curve: Curves.easeInOutCubic));
+        _mainAnimationController.forward(from: 0.0);
+        _progressAnimationController.forward(from: 0.0);
+        _fabAnimationController.forward(from: 0.0);
+      });
+    } catch (e) {
+      print('Lỗi khi lấy chi tiết sự kiện: $e');
+    }
   }
 
   @override
@@ -145,6 +147,40 @@ class _EventDetailScreenState extends State<EventDetailScreen>
           ),
         );
       }
+    }
+  }
+
+  Future<void> _openCalendar(String date) async {
+    final parsedDate = DateTime.parse(date);
+    final startDateTime = '${parsedDate.toIso8601String().substring(0, 10).replaceAll('-', '')}T${parsedDate.toIso8601String().substring(11, 19).replaceAll(':', '')}Z';
+    final endDateTime = '${parsedDate.add(const Duration(days: 1)).toIso8601String().substring(0, 10).replaceAll('-', '')}T000000Z';
+
+    final calendarUrl = Uri.parse(
+        'https://www.google.com/calendar/render?action=TEMPLATE&dates=$startDateTime/$endDateTime&text=${Uri.encodeComponent(_event!.title)}&location=${Uri.encodeComponent(_event!.location)}');
+    final localizations = AppLocalizations.of(context);
+
+    try {
+      if (await canLaunchUrl(calendarUrl)) {
+        await launchUrl(calendarUrl, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(localizations.translate('could_not_open_calendar')),
+            backgroundColor: AppColors.primaryRed,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${localizations.translate('could_not_open_calendar')}: $e'),
+          backgroundColor: AppColors.primaryRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
     }
   }
 
@@ -211,8 +247,32 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   }
 
   Widget _buildHeroSection() {
+    if (_event == null) return Container();
     final localizations = AppLocalizations.of(context);
-    final event = widget.event;
+    String translatedStatus;
+    Color statusColor;
+    IconData statusIcon;
+    switch (_event!.status.toLowerCase()) {
+      case 'pending':
+        translatedStatus = localizations.translate('Pending');
+        statusColor = Colors.orange;
+        statusIcon = Icons.accessibility_new_sharp;
+        break;
+      case 'completed':
+        translatedStatus = localizations.translate('Completed');
+        statusColor = Colors.green;
+        statusIcon = Icons.check_circle;
+        break;
+      case 'cancelled':
+        translatedStatus = localizations.translate('Canceled');
+        statusColor = Colors.red;
+        statusIcon = Icons.cancel;
+        break;
+      default:
+        translatedStatus = localizations.translate('status_unknown');
+        statusColor = Colors.grey;
+        statusIcon = Icons.info;
+    }
 
     return _buildGradientCard(
       gradientColors: [
@@ -222,7 +282,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Event Image with Overlay
           Stack(
             children: [
               ClipRRect(
@@ -230,18 +289,9 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                 child: Container(
                   height: 240,
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.primaryRed.withOpacity(0.8),
-                        Colors.pink.withOpacity(0.6),
-                      ],
-                    ),
-                  ),
-                  child: Image.asset(
-                    'assets/images/logo.png',
+                  child: _event!.image != null && _event!.image!.isNotEmpty
+                      ? Image.network(
+                    _event!.image!,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       decoration: BoxDecoration(
@@ -254,18 +304,30 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                           ],
                         ),
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                          size: 80,
-                        ),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.cover,
                       ),
+                    ),
+                  )
+                      : Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.primaryRed.withOpacity(0.8),
+                          Colors.pink.withOpacity(0.6),
+                        ],
+                      ),
+                    ),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
               ),
-              // Gradient overlay
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
@@ -281,7 +343,39 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                   ),
                 ),
               ),
-              // Floating elements
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(statusIcon, size: 16, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        translatedStatus,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Positioned(
                 top: 16,
                 right: 16,
@@ -304,7 +398,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                       Icon(Icons.schedule, size: 16, color: AppColors.primaryRed),
                       const SizedBox(width: 4),
                       Text(
-                        event.getFormattedTime(),
+                        _event!.getFormattedTime(),
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -317,10 +411,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
               ),
             ],
           ),
-
           const SizedBox(height: 20),
-
-          // Event Title with Animation
           AnimatedBuilder(
             animation: _mainAnimationController,
             builder: (context, _) {
@@ -329,7 +420,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                 child: Opacity(
                   opacity: _fadeAnimation.value,
                   child: Text(
-                    event.title,
+                    _event!.title,
                     style: GoogleFonts.poppins(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
@@ -341,10 +432,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
               );
             },
           ),
-
           const SizedBox(height: 12),
-
-          // Organization with Icon
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -357,7 +445,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                 Icon(Icons.business, color: AppColors.primaryRed, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  event.organizationName,
+                  _event!.organizationName,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -373,9 +461,8 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   }
 
   Widget _buildInfoSection() {
+    if (_event == null) return Container();
     final localizations = AppLocalizations.of(context);
-    final event = widget.event;
-
     return _buildGradientCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,23 +476,11 @@ class _EventDetailScreenState extends State<EventDetailScreen>
             ),
           ),
           const SizedBox(height: 16),
-
-          // Date Info
           _buildInfoItem(
-            icon: Icons.calendar_today,
-            title: localizations.translate('date'),
-            value: event.getFormattedDate(),
-            iconColor: Colors.blue,
-          ),
-
-          const SizedBox(height: 16),
-
-          // Time Info
-          _buildInfoItem(
-            icon: Icons.access_time,
-            title: localizations.translate('time'),
-            value: event.getFormattedTime(),
-            iconColor: Colors.orange,
+            icon: Icons.description,
+            title: localizations.translate('description'),
+            value: _event!.description,
+            iconColor: Colors.purple,
           ),
         ],
       ),
@@ -468,10 +543,120 @@ class _EventDetailScreenState extends State<EventDetailScreen>
     );
   }
 
-  Widget _buildLocationSection() {
+  Widget _buildTimeSection() {
+    if (_event == null) return Container();
     final localizations = AppLocalizations.of(context);
-    final event = widget.event;
+    return _buildGradientCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            localizations.translate('time_title'),
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildInfoItem(
+            icon: Icons.access_time,
+            title: localizations.translate('time'),
+            value: _event!.getFormattedTime(),
+            iconColor: Colors.orange,
+          ),
+        ],
+      ),
+    );
+  }
 
+  Widget _buildDateSection() {
+    if (_event == null) return Container();
+    final localizations = AppLocalizations.of(context);
+    return _buildGradientCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.calendar_today, color: AppColors.primaryRed, size: 24),
+              const SizedBox(width: 8),
+              Text(
+                localizations.translate('date'),
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () => _openCalendar(_event!.eventDate),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primaryRed.withOpacity(0.1),
+                    Colors.pink.withOpacity(0.05),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.primaryRed.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryRed.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.calendar_today, color: AppColors.primaryRed, size: 24),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          localizations.translate('tap_to_open_calendar'),
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _event!.getFormattedDate(),
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryRed,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.open_in_new, color: AppColors.primaryRed, size: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocationSection() {
+    if (_event == null) return Container();
+    final localizations = AppLocalizations.of(context);
     return _buildGradientCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,9 +676,8 @@ class _EventDetailScreenState extends State<EventDetailScreen>
             ],
           ),
           const SizedBox(height: 16),
-
           GestureDetector(
-            onTap: () => _launchGoogleMaps(event.location),
+            onTap: () => _launchGoogleMaps(_event!.location),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -534,7 +718,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          event.location,
+                          _event!.location,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -555,9 +739,11 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   }
 
   Widget _buildProgressSection() {
+    if (_event == null) return Container();
     final localizations = AppLocalizations.of(context);
-    final event = widget.event;
-    final progress = event.currentDonors / event.requiredDonors;
+    final progress = _event!.requiredDonors > 0
+        ? _event!.currentDonors / _event!.requiredDonors
+        : 0.0;
 
     return _buildGradientCard(
       child: Column(
@@ -578,13 +764,11 @@ class _EventDetailScreenState extends State<EventDetailScreen>
             ],
           ),
           const SizedBox(height: 20),
-
-          // Progress Stats
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildStatItem(
-                value: '${event.currentDonors}',
+                value: '${_event!.currentDonors}',
                 label: localizations.translate('registered'),
                 color: AppColors.primaryRed,
                 icon: Icons.people,
@@ -595,7 +779,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                 color: AppColors.borderColor.withOpacity(0.3),
               ),
               _buildStatItem(
-                value: '${event.requiredDonors}',
+                value: '${_event!.requiredDonors}',
                 label: localizations.translate('required'),
                 color: Colors.blue,
                 icon: Icons.flag,
@@ -613,10 +797,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
               ),
             ],
           ),
-
           const SizedBox(height: 24),
-
-          // Animated Progress Bar
           Container(
             height: 12,
             decoration: BoxDecoration(
@@ -639,7 +820,9 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                       borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(
-                          color: (progress >= 1.0 ? Colors.green : AppColors.primaryRed)
+                          color: (progress >= 1.0
+                              ? Colors.green
+                              : AppColors.primaryRed)
                               .withOpacity(0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
@@ -694,9 +877,14 @@ class _EventDetailScreenState extends State<EventDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_event == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final localizations = AppLocalizations.of(context);
-    final event = widget.event;
-    final progress = event.currentDonors / event.requiredDonors;
+    final progress = _event!.requiredDonors > 0
+        ? _event!.currentDonors / _event!.requiredDonors
+        : 0.0;
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -729,10 +917,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                AppColors.primaryRed,
-                Colors.pink,
-              ],
+              colors: [AppColors.primaryRed, Colors.pink],
             ),
           ),
         ),
@@ -758,6 +943,8 @@ class _EventDetailScreenState extends State<EventDetailScreen>
               children: [
                 _buildHeroSection(),
                 _buildInfoSection(),
+                _buildDateSection(),
+                _buildTimeSection(),
                 _buildLocationSection(),
                 _buildProgressSection(),
               ],
@@ -774,9 +961,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
           decoration: BoxDecoration(
             gradient: progress >= 1.0
                 ? LinearGradient(colors: [Colors.grey, Colors.grey.shade600])
-                : LinearGradient(
-              colors: [AppColors.primaryRed, Colors.pink],
-            ),
+                : LinearGradient(colors: [AppColors.primaryRed, Colors.pink]),
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
@@ -797,7 +982,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DonationFormScreen(eventId: event.id),
+                    builder: (context) => DonationFormScreen(eventId: _event!.id),
                   ),
                 );
               },
@@ -832,4 +1017,6 @@ class _EventDetailScreenState extends State<EventDetailScreen>
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
+
+
 }
